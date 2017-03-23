@@ -1,0 +1,34 @@
+{
+  "name": "personal-website",
+  "version": "1.0.0",
+  "description": "I just made this repo public, so there's not a ton here, but enjoy it for what it's worth.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack-dev-server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/juddfranklin1/my-website.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/juddfranklin1/my-website/issues"
+  },
+  "homepage": "https://github.com/juddfranklin1/my-website#readme",
+  "dependencies": {
+    "babel": "^6.23.0",
+    "babel-preset-es2015": "^6.22.0",
+    "babel-preset-react": "^6.23.0",
+    "bourbon": "^4.3.3",
+    "react": "^15.4.2",
+    "react-dom": "^15.4.2",
+    "webpack": "^2.2.1",
+    "webpack-dev-server": "^2.4.1"
+  },
+  "devDependencies": {
+    "css-loader": "^0.26.2",
+    "style-loader": "^0.13.2"
+  }
+}
