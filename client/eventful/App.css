@@ -59,7 +59,7 @@ ol, ul {
   transition: right 1s;
   -webkit-transition: right 1s;
   background: #eee;
-  border: 1px solid #ccc;
+  border: 1px solid #b1d;
 }
 .eventful-container.shown {
   right: 0;
@@ -70,8 +70,23 @@ ol, ul {
   height: 40px;
   padding: 10px;
   position: absolute;
-  left: -80px;
+  left: -82px;
   line-height: 40px;
   text-align: center;
-  background: red;
+  background: #b1d;
+  transition: background-color 1s;
+  -webkit-transition: background-color 1s;
+  border: 1px solid #b1d;
+}
+.eventfulToggleTab a {
+  color: white;
+  text-decoration: none;
+  transition: color 1s;
+  -webkit-transition: color 1s;
+}
+.shown .eventfulToggleTab {
+  background: white;
+}
+.shown .eventfulToggleTab a {
+  color: #b1d;
 }

@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 const ToggleTab = function(props){
     return(
         <div className="eventfulToggleTab" onClick={ () => { props.onToggle() } }>
-            <i>Toggle</i>
+            <a href="#">Toggle</a>
         </div>
     );
 }
