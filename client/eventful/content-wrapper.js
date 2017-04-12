@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 
 import OptionsWrapper from './options-wrapper.js';
 import TrackerWrapper from './tracker-wrapper.js';
+import Navigation from './navigation.js';
 
 export default class ContentWrapper extends Component {
   /* This class will contain all the inner workings of the Widget
@@ -117,7 +118,7 @@ export default class ContentWrapper extends Component {
    * */
   countEm(event,props) {
     let element = event.target;
-    let description = 'Last tracked event: '+ event.type + ' on ' + element.tagName.strToLower();
+    let description = 'Last tracked event: '+ event.type + ' on ' + element.tagName.toLowerCase();
     if (typeof(element.innerHTML) === 'string') {
       description += '.' + element.className + '.';
     }
@@ -134,14 +135,23 @@ export default class ContentWrapper extends Component {
      */
   }
 
+  changeTab(tab){
+    this.setState({
+      activeTab: tab
+    });
+  }
+
   render(){
     return (
       <div className="eventful-content-wrapper">
+        <Navigation changeTab={ this.changeTab.bind(this) } />
         <TrackerWrapper
+          activeTab={ this.state.activeTab }
           counter={ this.state.counter }
           activeElement={ this.state.activeElement }
           selectedClasses={ this.state.selectedClasses } />
         <OptionsWrapper
+          activeTab={ this.state.activeTab }
           isTesting={ this.props.isTesting }
           pageClasses={ this.state.pageClasses }
           addElement={ this.onAddElement }

@@ -22,7 +22,7 @@ export default class OptionsWrapper extends Component {
       return <div />;
     }
     return(
-      <div className="options-wrapper section">
+      <div className={ this.props.activeTab === 'options' ? 'options-wrapper section shown' : 'options-wrapper section hidden' }>
         <h2>Options</h2>
         <TestElements addElement={this.props.addElement} isTesting={ this.props.isTesting } />
         <PickASelector

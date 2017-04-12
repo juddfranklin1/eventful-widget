@@ -98,3 +98,28 @@
   margin: 1%;
   float: left;
 }
+.section.hidden {
+  display: none;
+}
+.section h2 {
+  margin-top: 0;
+}
+
+.eventful-navigation {
+  list-style-type: none;
+  padding: 0;
+}
+.eventful-navigation:after {
+  content: '';
+  clear: both;
+  display: table;
+}
+.eventful-navigation li {
+  float: left;
+  padding: 4px 10px;
+}
+.eventful-navigation li a {
+  color: #b1d;
+  font-weight: bold;
+  cursor: pointer;
+}
