@@ -117,9 +117,9 @@ export default class ContentWrapper extends Component {
    * */
   countEm(event,props) {
     let element = event.target;
-    let description = 'you just clicked on a ' + element.tagName + ' element';
+    let description = 'Last tracked event: '+ event.type + ' on ' + element.tagName.strToLower();
     if (typeof(element.innerHTML) === 'string') {
-      description += ' with the class ' + element.className + '.';
+      description += '.' + element.className + '.';
     }
     this.updateCounter(description);
     return true;

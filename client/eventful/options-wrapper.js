@@ -23,6 +23,7 @@ export default class OptionsWrapper extends Component {
     }
     return(
       <div className="options-wrapper section">
+        <h2>Options</h2>
         <TestElements addElement={this.props.addElement} isTesting={ this.props.isTesting } />
         <PickASelector
           selectedClasses={ this.props.selectedClasses }

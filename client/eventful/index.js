@@ -10,7 +10,7 @@ export default class Eventful extends Component {
     this.state = {
       hidden: true,// If set to false will default to exposed view. Defaults to true.
       alignment: 'right',// left, right, or bottom defaults to right
-      activeTab: 'home',
+      activeTab: 'home',// Ultimately this will determine the navigation within the UI
       isTesting: true // If set to true, will display test components. Defaults to false.
     }
   }
