@@ -3,8 +3,8 @@ import ReactDOM from 'react-dom';
 
 const ToggleTab = function(props){
     return(
-        <div className="eventfulToggleTab" onClick={ () => { props.onToggle() } }>
-            <a href="#">Toggle</a>
+        <div className="eventful-toggle-tab" onClick={ () => { props.onToggle() } }>
+            <a href="#">{ props.hidden && 'Show' }{ !props.hidden && 'Hide' } Eventful</a>
         </div>
     );
 }

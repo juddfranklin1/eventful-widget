@@ -3,8 +3,8 @@ import ReactDOM from 'react-dom';
 
 const ClickCounter = function(props){
   return(
-    <div className="eventfulClickCounter">
-       <h3>Here is a count of clicks on elements with className "{ props.targetClass }"</h3>
+    <div className="eventful-click-counter">
+       <h3>Here is a count of clicks on elements with the following classes: { props.targetClasses.map((e,i)=>( <span key={ i }>{ e } </span> )) }</h3>
        <h4>{ props.element }</h4>
        <p><b>{ props.clickCount }</b></p>
      </div>

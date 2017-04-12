@@ -1,25 +1,54 @@
 /*Eventful Styles*/
+.eventful-container,
+.eventful-container *,
+.eventful-container *:before,
+.eventful-container *:after {
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
+}
 
 .eventful-container {
   width: 400px;
-  padding: 20px;
   position: fixed;
-  right: -442px;
-  transition: right 1s;
-  -webkit-transition: right 1s;
-  background: #eee;
-  border: 1px solid #b1d;
+  transition: all 1s;
+  -webkit-transition: all 1s;
 }
-.eventful-container.shown {
+.eventful-container.right {
+  right: -400px;
+}
+.eventful-container.left {
+  left: -400px;
+}
+.eventful-container.bottom {
+  position: fixed;
+  bottom: -300px;
+  height: 300px;
+  left: 25%;
+  width: 50%;
+}
+.eventful-container.right.shown {
   right: 0;
 }
-.eventfulToggleTab {
+.eventful-container.left.shown {
+  left: 0;
+}
+.eventful-container.bottom.shown {
+  bottom: 0;
+}
+
+.eventful-content-wrapper {
+  background: #eee;
+  border: 1px solid #b1d;
+  padding: 0;
+}
+
+.eventful-toggle-tab {
   display: block;
-  width: 60px;
-  height: 40px;
+  width: 80px;
+  height: 60px;
   padding: 10px;
   position: absolute;
-  left: -82px;
   line-height: 40px;
   text-align: center;
   background: #b1d;
@@ -27,15 +56,47 @@
   -webkit-transition: background-color 1s;
   border: 1px solid #b1d;
 }
-.eventfulToggleTab a {
+.right .eventful-toggle-tab {
+  left: -80px;
+  border-right: 0;
+}
+
+.left .eventful-toggle-tab {
+  right: -80px;
+  border-left: 0;
+}
+
+.bottom .eventful-toggle-tab {
+  top: -60px;
+  width: 100%;
+  height: 60px;
+  left: 0;
+  border-bottom: 0;
+}
+.eventful-toggle-tab a {
   color: white;
   text-decoration: none;
   transition: color 1s;
   -webkit-transition: color 1s;
 }
-.shown .eventfulToggleTab {
+.shown .eventful-toggle-tab {
   background: white;
 }
-.shown .eventfulToggleTab a {
+.shown .eventful-toggle-tab a {
   color: #b1d;
+}
+.eventful-content-wrapper {
+  clear: both;
+}
+.eventful-content-wrapper:after {
+  clear: both;
+  display: table;
+  content: "";
+}
+.section {
+  width: 48%;
+  border: 1px solid green;
+  padding: 5px;
+  margin: 1%;
+  float: left;
 }
