@@ -156,7 +156,8 @@ export default class ContentWrapper extends Component {
           pageClasses={ this.state.pageClasses }
           addElement={ this.onAddElement }
           selectedClasses={ this.state.selectedClasses }
-          selectClass={ this.onSelectClass.bind(this) } />
+          selectClass={ this.onSelectClass.bind(this) }
+          toggleTesting={ this.props.toggleTesting.bind(this) } />
       </div>
     );
   }

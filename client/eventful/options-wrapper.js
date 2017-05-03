@@ -14,8 +14,8 @@ export default class OptionsWrapper extends Component {
       if(props.isTesting){
         return (
           <div>
-            <AddElement elementName='merp' onClick={ (name) => props.addElement(name) } />
-            <AddElement elementName='derp' onClick={ (name) => props.addElement(name) } />
+            <AddElement elementName='test-1' onClick={ (name) => props.addElement(name) } />
+            <AddElement elementName='test-2' onClick={ (name) => props.addElement(name) } />
           </div>
         );
       }
@@ -24,6 +24,7 @@ export default class OptionsWrapper extends Component {
     return(
       <div className={ this.props.activeTab === 'options' ? 'options-wrapper section shown' : 'options-wrapper section hidden' }>
         <h2>Options</h2>
+        <button content="Test" onClick={ ()=> this.props.toggleTesting() }>Toggle Test</button>
         <TestElements addElement={this.props.addElement} isTesting={ this.props.isTesting } />
         <PickASelector
           selectedClasses={ this.props.selectedClasses }

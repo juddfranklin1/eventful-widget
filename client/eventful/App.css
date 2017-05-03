@@ -123,3 +123,9 @@
   font-weight: bold;
   cursor: pointer;
 }
+
+button[content="Test"] {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
