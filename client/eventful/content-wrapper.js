@@ -30,7 +30,7 @@ export default class ContentWrapper extends Component {
       counter: 0,
       element: '',
       pageClasses: [],
-      activeTab: 'home',
+      activeTab: 'tracker',
       selectedClasses: [],
       clonedChildren: []
     }
@@ -144,7 +144,9 @@ export default class ContentWrapper extends Component {
   render(){
     return (
       <div className="eventful-content-wrapper">
-        <Navigation changeTab={ this.changeTab.bind(this) } />
+        <Navigation
+          changeTab={ this.changeTab.bind(this) }
+          activeTab={ this.state.activeTab } />
         <TrackerWrapper
           activeTab={ this.state.activeTab }
           counter={ this.state.counter }
