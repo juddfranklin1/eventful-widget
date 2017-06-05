@@ -13,6 +13,7 @@
   position: fixed;
   transition: all 1s;
   -webkit-transition: all 1s;
+  top: 50px;
 }
 .eventful-container.right {
   right: -400px;
