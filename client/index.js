@@ -8,6 +8,6 @@ import Eventful from './eventful/index.js';
 // ========================================
 
 ReactDOM.render(
-  <Eventful cookie="document.cookie" />,
+  <Eventful />,
   document.getElementById('eventful-root')
 );

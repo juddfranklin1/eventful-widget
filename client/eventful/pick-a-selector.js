@@ -1,3 +1,11 @@
+/* Stateless Component
+* gathers all the classes from the page
+* dumps them into a dropdown.
+* Once selected, a class is tracked.
+* TODO: Offer other selectors
+* perhaps integrate sizzle
+*/
+
 import React from 'react';
 import ReactDOM from 'react-dom';
 

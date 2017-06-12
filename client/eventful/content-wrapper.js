@@ -3,18 +3,20 @@ import ReactDOM from 'react-dom';
 
 import OptionsWrapper from './options-wrapper.js';
 import TrackerWrapper from './tracker-wrapper.js';
+import AddTrackingWrapper from './add-tracking-wrapper.js'; 
 import Navigation from './navigation.js';
 
 export default class ContentWrapper extends Component {
-  /* This class will contain all the inner workings of the Widget
-   * Its chief role will be to manage which view of the widget is Active.
-   * The current idea for the widget would be to provide a few sub-interfaces.
-   * 1) A default interface (accessed by a house icon): a cookie can be set to keep this at the last state.
-   *    a. This interface should give users the ability to track their previously tracked elements and events.
-   *    b. It should also provide a nice overview of data tracked.
-   *        i. Specifically, it should note the number of elements tracked, the number of events that have been registered, etc.
-   * 2) An options interface (gear or wrench icon)
-   *    a. This interface would allow a user to toggle test mode,
+  /*  This component does too much.
+   *  It should simply contain and bridge the 3 primary internal components
+   *  Navigation - Gives the ability to toggle between the tracker and options tabs
+   *    - Cookie for maintaining last state
+   *  Tracker - Where the magic happens...
+   *    - This sub-component should contain a running record of the elements and events to be tracked
+   *    - Should offer global and detail views that drill down into event and element data.
+   *  Options (Gear or wrench icon)
+   *    - toggle test mode
+   *    - 
    *       which would turn on or off the ability to generate elements to track events.
    * 3) Add tracker interface (accessed by a plus sign icon)
    *    a. allowing a user to track a particular selector for a specific event
@@ -94,10 +96,12 @@ export default class ContentWrapper extends Component {
    * Once there's an API, this should POST event details to the DB.
    * */  
   delegateEvent(eventType,newClass){
-    let evt = eventType || 'click';
-    let that = this;
+    const evt = eventType || 'click';
+    const that = this;
     const targetClasses = Array.of(newClass) || this.state.selectedClasses;
-    targetClasses.map(function(targetClass){
+
+    targetClasses.map(function(targetClass) 
+    {
       document.getElementsByTagName('body')[0].addEventListener(evt, function(e) {
         var failsFilter = true,
           el = e.target;
@@ -126,7 +130,7 @@ export default class ContentWrapper extends Component {
     return true;
   };
 
-  componentDidMount(){
+  componentDidMount() {
     /* This might warrant a default tracking by calling
      * EventDelegator wrapped in a timeout.
      * The tracking could check for a cookie or query an API
@@ -135,31 +139,50 @@ export default class ContentWrapper extends Component {
      */
   }
 
-  changeTab(tab){
+  changeTab(tab) {
     this.setState({
       activeTab: tab
     });
   }
 
   render(){
-    return (
-      <div className="eventful-content-wrapper">
-        <Navigation
-          changeTab={ this.changeTab.bind(this) }
-          activeTab={ this.state.activeTab } />
-        <TrackerWrapper
-          activeTab={ this.state.activeTab }
-          counter={ this.state.counter }
-          activeElement={ this.state.activeElement }
-          selectedClasses={ this.state.selectedClasses } />
-        <OptionsWrapper
+
+    let activeTab = null; 
+
+    if (this.state.activeTab === "add") {
+      
+      activeTab = <AddTrackingWrapper
+          activeTab={ this.state.activeTab }/>;
+
+    } else if (this.state.activeTab === "options") {
+      
+      activeTab = <OptionsWrapper
           activeTab={ this.state.activeTab }
           isTesting={ this.props.isTesting }
           pageClasses={ this.state.pageClasses }
           addElement={ this.onAddElement }
           selectedClasses={ this.state.selectedClasses }
           selectClass={ this.onSelectClass.bind(this) }
-          toggleTesting={ this.props.toggleTesting.bind(this) } />
+          toggleTesting={ this.props.toggleTesting.bind(this) } />;
+
+    } else {
+      
+      activeTab = <TrackerWrapper
+          activeTab={ this.state.activeTab }
+          counter={ this.state.counter }
+          activeElement={ this.state.activeElement }
+          selectedClasses={ this.state.selectedClasses } />;
+
+    }
+
+    return (
+      <div className="eventful-content-wrapper">
+        <Navigation
+          changeTab={ this.changeTab.bind(this) }
+          activeTab={ this.state.activeTab } />
+        { activeTab }
+        
+        
       </div>
     );
   }

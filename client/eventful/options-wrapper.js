@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 
-import AddElement from './add-element.js';
+import { Cookies } from 'react-cookie';
+
+import TestElement from './test-element.js';
 import PickASelector from './pick-a-selector.js';
 
 export default class OptionsWrapper extends Component {
@@ -14,8 +16,8 @@ export default class OptionsWrapper extends Component {
       if(props.isTesting){
         return (
           <div>
-            <AddElement elementName='test-1' onClick={ (name) => props.addElement(name) } />
-            <AddElement elementName='test-2' onClick={ (name) => props.addElement(name) } />
+            <TestElement elementName='test-1' onClick={ (name) => props.addElement(name) } />
+            <TestElement elementName='test-2' onClick={ (name) => props.addElement(name) } />
           </div>
         );
       }

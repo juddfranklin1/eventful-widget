@@ -117,17 +117,22 @@
 }
 .eventful-navigation li {
   float: left;
-  padding: 10px;
   margin: 0 5px;
-  transition: all;
+  background-color: transparent;
+  -webkit-transition: background-color 500ms linear;
+  -ms-transition: background-color 500ms linear;
+  transition: background-color 500ms linear;
 }
 
 .tracker #tracker-link,
-.options #options-link {
+.options #options-link,
+.add #add-link {
   background: #fff;
 }
 
 .eventful-navigation li a {
+  display: inline-block;
+  padding: 10px;
   color: #b1d;
   font-weight: bold;
   cursor: pointer;
