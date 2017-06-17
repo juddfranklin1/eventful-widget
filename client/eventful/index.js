@@ -20,7 +20,7 @@ export default class Eventful extends Component {
     this.state = {
       CookieObj: new Cookies(),
       hidden: true,// If set to false will default to exposed view. Defaults to true.
-      alignment: 'left',// left, right, or bottom defaults to right
+      alignment: 'right',// left, right, or bottom defaults to right
       activeTab: 'home',// Ultimately this will determine the navigation within the UI
       isTesting: false, // If set to true, will display test components. Defaults to false.
     }
@@ -37,12 +37,6 @@ export default class Eventful extends Component {
 
   }
 
-  toggleTesting() {
-  
-    this.setState({ "isTesting": !this.state.isTesting });
-  
-  }
-
   onToggle(hidden) 
   {
 
@@ -57,7 +51,7 @@ export default class Eventful extends Component {
 
       <div className= {this.state.hidden ? "eventful-container hidden " + this.state.alignment : "eventful-container shown " + this.state.alignment }>
         <ToggleTab onToggle={ this.onToggle.bind(this,this.state.hidden) } hidden={ this.state.hidden } />
-        <ContentWrapper toggleTesting={ this.toggleTesting.bind(this) } isTesting={ this.state.isTesting } className={ this.state.activeTab } />
+        <ContentWrapper className={ this.state.activeTab } />
       </div>
     
     )

@@ -5,11 +5,12 @@ import Counter from './counter.js';
 
 const TrackerWrapper = function(props){
     return(
-      <div className={ props.activeTab === 'tracker' ? 'tracker-wrapper section shown' : 'tracker-wrapper section hidden' }>
+      <div className='tracker-wrapper section'>
         <h2>Tracker</h2>
         <Counter
           targetClasses={ props.selectedClasses }
-          clickCount={ props.counter }
+          eventCount={ props.counter }
+          event={ props.lastEvent }
           element={ props.activeElement } />
       </div>
     );

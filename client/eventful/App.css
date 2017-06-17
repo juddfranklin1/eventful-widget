@@ -138,8 +138,43 @@
   cursor: pointer;
 }
 
+button {
+  border: none;
+  background: #fff;
+  padding: 5px;
+  margin: 5px;
+  border: 1px solid #ccc;
+}
+
+button:hover {
+  border-color: #aaa;
+}
+
 button[content="Test"] {
   position: absolute;
   top: 10px;
   right: 10px;
+}
+
+#test-elements {
+  border: 1px solid #b1d;
+  margin: 10px 0;
+  padding: 10px;
+}
+
+
+.example-enter {
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s 2s, opacity 2s linear;
+}
+.example-enter.example-enter-active {
+	visibility: visible;
+  opacity: 1;
+  transition: opacity 2s linear;
+}
+.example-leave.example-leave-active {
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s 2s, opacity 2s linear;
 }
