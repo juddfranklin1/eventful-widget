@@ -33,7 +33,8 @@ export default class ContentWrapper extends Component {
       pageClasses: [],
       activeTab: 'tracker',
       selectedClasses: [],
-      clonedChildren: []
+      clonedChildren: [],
+      logEvent: true
     }
   }
 
@@ -63,16 +64,6 @@ export default class ContentWrapper extends Component {
 
   }
 
-  updateCounter(text, el){
-
-    this.setState({
-      counter: this.state.counter + 1,
-      activeElement: text
-    });
-    return;
-  
-}
-
   componentDidMount() {
     /* This might warrant a default tracking by calling
      * EventDelegator wrapped in a timeout.
@@ -82,10 +73,32 @@ export default class ContentWrapper extends Component {
      */
   }
 
+  updateCounter(text, el){
+
+    this.setState({
+      counter: this.state.counter + 1,
+      activeElement: text
+    });
+    return;
+  
+  }
+
   changeTab(tab) {
+
     this.setState({
       activeTab: tab
     });
+    return;
+  
+  }
+
+  setLogEvent(doLog){
+    alert(doLog.toString());
+    this.setState({
+      logEvent: doLog,
+    });
+    return;
+  
   }
 
   render(){
@@ -103,14 +116,17 @@ export default class ContentWrapper extends Component {
       
       activeTabContent = <OptionsWrapper
           pageClasses={ this.state.pageClasses }
-          selectedClasses={ this.state.selectedClasses } />;
+          selectedClasses={ this.state.selectedClasses }
+          setLogEvent={ this.setLogEvent.bind(this) }
+          logEvent={ this.state.logEvent } />;
 
     } else {
       
       activeTabContent = <TrackerWrapper
           counter={ this.state.counter }
           activeElement={ this.state.activeElement }
-          selectedClasses={ this.state.selectedClasses } />;
+          selectedClasses={ this.state.selectedClasses }
+          logEvent={ this.state.logEvent } />;
 
     }
 

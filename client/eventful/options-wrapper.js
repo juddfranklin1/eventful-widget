@@ -13,7 +13,8 @@ export default class OptionsWrapper extends Component {
 
     this.state = {
 
-      isTesting: false
+      isTesting: false,
+      logEvent: props.logEvent || true
 
     }
 
@@ -24,6 +25,12 @@ export default class OptionsWrapper extends Component {
     this.setState({ "isTesting": !this.state.isTesting });
   
 	}
+
+  toggleLogEvent(){
+
+    this.setState({ "logEvent": !this.state.logEvent });
+    this.props.setLogEvent(this.state.logEvent);
+  }
 
   render(){
     function TestElements(isTesting, onAddElement){//This just gives us some generated content to work with as needed.
@@ -48,6 +55,7 @@ export default class OptionsWrapper extends Component {
           transitionLeaveTimeout={500} >
           { TestElements(this.state.isTesting, this.onAddElement) }
         </CSSTransitionGroup>
+        <label htmlFor="logEventCheckbox">Log Events to console? <input id="logEventCheckbox" type="checkbox" onClick={ ()=> { this.toggleLogEvent(); if(this.state.logEvent && 'checked="checked"'){}; }} /></label>
       </div>
     );
   }

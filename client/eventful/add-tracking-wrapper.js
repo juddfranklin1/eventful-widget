@@ -42,7 +42,8 @@ export default class AddTrackingWrapper extends Component {
    * to count different event types.
    * Once there's an API, this should POST event details to the DB.
    * */
-  countEm(event,props) {
+  countEm(event) {
+    console.log(event);
     let element = event.target;
     let description = 'Last tracked event: '+ event.type + ' on ' + element.tagName.toLowerCase();
     if (typeof(element.innerHTML) === 'string') {
@@ -53,9 +54,6 @@ export default class AddTrackingWrapper extends Component {
   };
 
   onSelectClass(toAdd,evt){
-
-    console.log(evt);
-    
     let currentlySelected = this.props.selectedClasses;
     
     if(currentlySelected.indexOf(toAdd) === -1){
@@ -84,13 +82,13 @@ export default class AddTrackingWrapper extends Component {
           selectedClasses={ this.props.selectedClasses }
           pageClasses={ this.props.pageClasses }
           eventName="click"
-          selectClass={ (sel, evt) => this.onSelectClass(sel, evt) } />
+          selectClass={ (sel, evt) => this.onSelectClass(sel, 'click') } />
 
         <PickASelector
           selectedClasses={ this.props.selectedClasses }
           pageClasses={ this.props.pageClasses }
           eventName="mouseenter"
-          selectClass={ (sel, evt) => this.onSelectClass(sel, evt) } />
+          selectClass={ (sel, evt) => this.onSelectClass(sel, 'mouseenter') } />
 
 
       </div>

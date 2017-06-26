@@ -15,7 +15,7 @@ const PickASelector = function (props) {
 
   return (
   <div>
-    <label htmlFor="fromExisting">Pick from existing page classes to track { eventName && eventName } events on.
+    <label htmlFor="fromExisting"><h4>Pick from existing page classes to track { eventName && eventName } events on.</h4>
       <select id="fromExisting" onChange={ (ev, eventName) => (props.selectClass(ev.target.value, eventName)) }>
         <option default disabled selected>Pick a selector to track</option>
         { props.pageClasses.map((e,i)=>(<option key={ i } value={ e }>{ e }</option>)) }
