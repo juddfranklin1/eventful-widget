@@ -11,7 +11,7 @@ const TrackerWrapper = function(props){
           targetClasses={ props.selectedClasses }
           eventCount={ props.counter }
           event={ props.lastEvent }
-          element={ props.activeElement } />
+          update={ props.latestUpdate } />
       </div>
     );
 }

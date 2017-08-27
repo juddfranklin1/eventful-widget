@@ -9,7 +9,7 @@ const Counter = function(props){
     </div>) :
     (<div className="eventful-counter">
       <h3>Classes Tracked: { props.targetClasses.map((e,i)=>( <span key={ i }>{ e } </span> )) }</h3>
-      <h4>{ props.element }</h4>
+      <h4>{ props.update }</h4>
       <p><b>{ props.eventCount }</b></p>
     </div>);
   return(

@@ -32,9 +32,10 @@ export default class ContentWrapper extends Component {
       element: '',
       pageClasses: [],
       activeTab: 'tracker',
+      latestUpdate: 'No events tracked yet',
       selectedClasses: [],
       clonedChildren: [],
-      logEvent: true
+      logEvent: false
     }
   }
 
@@ -73,27 +74,34 @@ export default class ContentWrapper extends Component {
      */
   }
 
-  updateCounter(text, el){
-
+  updateCounter(text, evt, el){
+    let coords = {left: evt.screenX + 'px', top: evt.screenY + 'px'};
+    let eventMarker = document.createElement('span');
+    eventMarker.style.top = evt.clientY;
+    eventMarker.setAttribute('style','left: ' + evt.clientX + 'px; top: ' + evt.clientY + 'px')
+    eventMarker.style.left = evt.clientX;
+    eventMarker.classList.add('event-marker');
+    el.appendChild(eventMarker);
+    if (this.state.logEvent){
+      console.info(evt);
+      console.info(el);
+    }
     this.setState({
       counter: this.state.counter + 1,
-      activeElement: text
+      latestUpdate: text
     });
     return;
   
   }
 
   changeTab(tab) {
-
     this.setState({
       activeTab: tab
     });
     return;
-  
   }
 
   setLogEvent(doLog){
-    alert(doLog.toString());
     this.setState({
       logEvent: doLog,
     });
@@ -110,7 +118,8 @@ export default class ContentWrapper extends Component {
       activeTabContent = <AddTrackingWrapper
           pageClasses={ this.state.pageClasses }          
           selectedClasses={ this.state.selectedClasses }
-          updateCounter={ this.updateCounter.bind(this) } />;
+          updateCounter={ this.updateCounter.bind(this) }
+          logEvent={ this.state.logEvent } />;
 
     } else if (this.state.activeTab === "options") {
       
@@ -124,7 +133,7 @@ export default class ContentWrapper extends Component {
       
       activeTabContent = <TrackerWrapper
           counter={ this.state.counter }
-          activeElement={ this.state.activeElement }
+          latestUpdate={ this.state.latestUpdate }
           selectedClasses={ this.state.selectedClasses }
           logEvent={ this.state.logEvent } />;
 

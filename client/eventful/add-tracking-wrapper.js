@@ -6,7 +6,7 @@ import PickASelector from './pick-a-selector.js';
 /* The component where we will be able to track new elements or new events */
 
 export default class AddTrackingWrapper extends Component {
-  constructor(props){
+  constructor(props) {
     super();
     this.state = {
 
@@ -17,7 +17,7 @@ export default class AddTrackingWrapper extends Component {
    * to delegate different event types.
    * Once there's an API, this should POST event details to the DB.
    * */  
-  delegateEvent(eventType,newClass){
+  delegateEvent(eventType,newClass) {
     const evt = eventType || 'click';
     const that = this;
     const targetClasses = Array.of(newClass) || this.state.selectedClasses;
@@ -25,7 +25,7 @@ export default class AddTrackingWrapper extends Component {
     targetClasses.map(function(targetClass) 
     {
       document.getElementsByTagName('body')[0].addEventListener(evt, function(e) {
-        var failsFilter = true,
+        let failsFilter = true,
           el = e.target;
         while (el !== this && (failsFilter = el.className.indexOf(targetClass) === -1) && (el = el.parentNode));
         if (!failsFilter) {
@@ -43,13 +43,12 @@ export default class AddTrackingWrapper extends Component {
    * Once there's an API, this should POST event details to the DB.
    * */
   countEm(event) {
-    console.log(event);
     let element = event.target;
     let description = 'Last tracked event: '+ event.type + ' on ' + element.tagName.toLowerCase();
     if (typeof(element.innerHTML) === 'string') {
       description += '.' + element.className + '.';
     }
-    this.props.updateCounter(description);
+    this.props.updateCounter(description, event, element);
     return true;
   };
 
