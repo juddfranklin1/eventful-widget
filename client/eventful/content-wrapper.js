@@ -77,7 +77,6 @@ export default class ContentWrapper extends Component {
     firebase.initializeApp(config);
 
     let database = firebase.database();
-    console.log(database.ref('events'));
     //Get database content and place event markers where they go.
     //Need to account for elements that might not be present.
 
@@ -96,8 +95,40 @@ export default class ContentWrapper extends Component {
           eventMarker.setAttribute('style','left: ' + context.eventData.clientX + 'px; top: ' + context.eventData.clientY + 'px')
           eventMarker.style.left = context.eventData.clientX;
           eventMarker.classList.add('event-marker');
+          eventMarker.setAttribute('data-eventid',context.eventId);
           let body = document.querySelector('body');
           body.appendChild(eventMarker);
+
+          function showEventData(e) {
+            let oldToolTip = document.querySelector('.tooltip');
+            if(oldToolTip !== null){
+              body.removeChild(oldToolTip);
+            }  
+            let tooltip = document.createElement('div');
+            tooltip.classList.add('tooltip');
+            let dataInfo = document.createTextNode(JSON.stringify(context.eventData));
+            tooltip.appendChild(dataInfo);
+            tooltip.style.top = context.eventData.clientY;
+            tooltip.style.width = '8rem';
+            tooltip.style.padding = '2rem';
+            tooltip.style.border = '1px solid black';
+            tooltip.style.left = context.eventData.clientX + 10;
+            tooltip.style.wordBreak = 'break-all';
+            tooltip.style.opacity = 0;
+            body.appendChild(tooltip);
+            let fadeIn = window.setInterval(function(){
+              let tooltipOpacity = window.getComputedStyle(tooltip).opacity;
+              console.log(tooltipOpacity);
+              if(tooltipOpacity == 1)
+                clearInterval(fadeIn);
+
+              tooltip.style.opacity = Number.parseFloat(tooltipOpacity) + .05;
+              console.log(tooltip.style.opacity);
+            },50);
+
+          }
+      
+          eventMarker.addEventListener('click',showEventData);
         }
       });
     }
@@ -142,23 +173,28 @@ export default class ContentWrapper extends Component {
     };
 
     let eventsReference = database.ref('events');
+
     // use the set method to save data to the events
     eventsReference.push({
       event: evt.type,
       eventData: eventData
     });
+
     if (this.state.logEvent){
       console.info(evt);
       console.info(el);
     }
+
     if(evt.altKey) {
       evt.target.style.height = 40;
       evt.target.style.backgroundColor = 'blue';
     }
+
     this.setState({
       counter: this.state.counter + 1,
       latestUpdate: text
     });
+
     return;
   
   }
