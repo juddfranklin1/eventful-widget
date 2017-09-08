@@ -166,22 +166,26 @@ button[content="Test"] {
 .example-enter {
   visibility: hidden;
   opacity: 0;
-  transition: visibility 0s 2s, opacity 2s linear;
+  transition: all 2s linear;
 }
 .example-enter.example-enter-active {
 	visibility: visible;
   opacity: 1;
-  transition: opacity 2s linear;
+  transition: all 2s linear;
 }
 .example-leave.example-leave-active {
-  visibility: hidden;
   opacity: 0;
-  transition: visibility 0s 2s, opacity 2s linear;
+  transition: all 2s linear;
 }
 
 .event-marker {
-  background: red;
-  width: 2px;
-  height: 2px;
+  border: 1px solid red;
+  width: 5px;
+  height: 5px;
   position: absolute;
+  cursor: help;
+}
+
+[class^='test'] {
+  cursor: pointer;
 }

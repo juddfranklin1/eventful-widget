@@ -12,7 +12,7 @@ export default class Eventful extends Component {
    *  Manages display status,
    *  active tab
    *  testing status
-   *    */
+   **/
 
   constructor(props){
     super();

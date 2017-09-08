@@ -49,10 +49,10 @@ export default class OptionsWrapper extends Component {
       <div className='options-wrapper section' >
         <h2>Options</h2>
         <button content="Test" onClick={ ()=> this.toggleTesting() }>Toggle Test</button>
-        <CSSTransitionGroup
-          transitionName="example"
-          transitionEnterTimeout={500}
-          transitionLeaveTimeout={500} >
+        <CSSTransitionGroup component="div"
+          transitionName="example"  
+          transitionLeaveTimeout={500}
+          transitionEnterTimeout={500} >
           { TestElements(this.state.isTesting, this.onAddElement) }
         </CSSTransitionGroup>
         <label htmlFor="logEventCheckbox">Log Events to console? <input id="logEventCheckbox" type="checkbox" onClick={ ()=> { this.toggleLogEvent(); if(this.state.logEvent && 'checked="checked"'){}; }} /></label>

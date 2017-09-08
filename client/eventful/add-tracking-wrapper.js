@@ -52,7 +52,7 @@ export default class AddTrackingWrapper extends Component {
     return true;
   };
 
-  onSelectClass(toAdd,evt){
+  onSelectClass(toAdd,evt) {
     let currentlySelected = this.props.selectedClasses;
     
     if(currentlySelected.indexOf(toAdd) === -1){
@@ -88,6 +88,21 @@ export default class AddTrackingWrapper extends Component {
           pageClasses={ this.props.pageClasses }
           eventName="mouseenter"
           selectClass={ (sel, evt) => this.onSelectClass(sel, 'mouseenter') } />
+        <PickASelector
+          selectedClasses={ this.props.selectedClasses }
+          pageClasses={ this.props.pageClasses }
+          eventName="mouseleave"
+          selectClass={ (sel, evt) => this.onSelectClass(sel, 'mouseleave') } />
+        <PickASelector
+          selectedClasses={ this.props.selectedClasses }
+          pageClasses={ this.props.pageClasses }
+          eventName="mousedown"
+          selectClass={ (sel, evt) => this.onSelectClass(sel, 'mousedown') } />
+        <PickASelector
+          selectedClasses={ this.props.selectedClasses }
+          pageClasses={ this.props.pageClasses }
+          eventName="mouseup"
+          selectClass={ (sel, evt) => this.onSelectClass(sel, 'mouseup') } />
 
 
       </div>

@@ -1,6 +1,10 @@
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 
+import * as firebase from 'firebase';
+import 'firebase/database';
+import 'firebase/storage';
+
 import OptionsWrapper from './options-wrapper.js';
 import TrackerWrapper from './tracker-wrapper.js';
 import AddTrackingWrapper from './add-tracking-wrapper.js'; 
@@ -61,6 +65,45 @@ export default class ContentWrapper extends Component {
       pageClasses: classNames,
     });
 
+    const config = {
+      apiKey: "AIzaSyAPare5GoVNFSxqlCGcIpcPHWo9d2qPgLA",
+      authDomain: "eventful-60cde.firebaseapp.com",
+      databaseURL: "https://eventful-60cde.firebaseio.com",
+      projectId: "eventful-60cde",
+      storageBucket: "",
+      messagingSenderId: "20568324415"
+    };
+
+    firebase.initializeApp(config);
+
+    let database = firebase.database();
+    console.log(database.ref('events'));
+    //Get database content and place event markers where they go.
+    //Need to account for elements that might not be present.
+
+    function getEvents() {
+      database.ref('events').on('value', function (results) {
+        var allEvents = results.val();
+        for (var item in allEvents) {
+          var context = {
+            event: allEvents[item].event,
+            eventData: allEvents[item].eventData,
+            eventId: item
+          };
+          
+          let eventMarker = document.createElement('span');
+          eventMarker.style.top = context.eventData.clientY;
+          eventMarker.setAttribute('style','left: ' + context.eventData.clientX + 'px; top: ' + context.eventData.clientY + 'px')
+          eventMarker.style.left = context.eventData.clientX;
+          eventMarker.classList.add('event-marker');
+          let body = document.querySelector('body');
+          body.appendChild(eventMarker);
+        }
+      });
+    }
+
+    getEvents();
+
     return;
 
   }
@@ -72,6 +115,8 @@ export default class ContentWrapper extends Component {
      * For saved or previously tracked items.
      * 
      */
+
+
   }
 
   updateCounter(text, evt, el){
@@ -82,9 +127,33 @@ export default class ContentWrapper extends Component {
     eventMarker.style.left = evt.clientX;
     eventMarker.classList.add('event-marker');
     el.appendChild(eventMarker);
+
+    let database = firebase.database();
+    //Set tooltip for eventMarker
+    //Get database content
+
+    let eventData = {
+      'target': evt.target,
+      'bubbles': evt.bubbles,
+      'clientX': evt.clientX,
+      'clientY': evt.clientY,
+      'screenX': evt.screenX,
+      'screenY': evt.screenY
+    };
+
+    let eventsReference = database.ref('events');
+    // use the set method to save data to the events
+    eventsReference.push({
+      event: evt.type,
+      eventData: eventData
+    });
     if (this.state.logEvent){
       console.info(evt);
       console.info(el);
+    }
+    if(evt.altKey) {
+      evt.target.style.height = 40;
+      evt.target.style.backgroundColor = 'blue';
     }
     this.setState({
       counter: this.state.counter + 1,
