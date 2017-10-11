@@ -193,9 +193,12 @@ button[content="Test"] {
 .tooltip {
   background: white;
   border: 1px solid black;
-  padding: 2rem;
+  padding: 1rem 2rem;
   position: absolute;
   width: 8rem;
   word-break: break-all;
   z-index: 19000;
+}
+.tooltip p {
+  margin: .25rem 0;
 }

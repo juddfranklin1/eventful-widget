@@ -115,7 +115,6 @@ export default class ContentWrapper extends Component {
                     eventMarker.setAttribute('data-eventid', context.eventId);
                     let body = document.querySelector('body');
                     body.appendChild(eventMarker);
-
                     
                     /**
                      * create a tooltip to house the event data
@@ -130,14 +129,16 @@ export default class ContentWrapper extends Component {
                         }
                         let tooltip = document.createElement('div');
                         tooltip.classList.add('tooltip');
-                        let dataInfo = document.createTextNode(JSON.stringify(context.eventData));
-                        tooltip.appendChild(dataInfo);
-
-                        let tooltipLocation = [context.eventData.clientX + 10, context.eventData.clientY + 10];
-                        tooltip.style.left = tooltipLocation[0] + 'px';
-                        tooltip.style.top = tooltipLocation[1] + 'px';
+                        let eventDataPoints = Object.keys(context.eventData);
+                        let tooltipText = eventDataPoints.reduce(function(iter, curr, i){
+                            return curr === 'Event' ? iter + '<p><b>' + context.eventData[curr] + '</b></p>' : iter + '<p>' + curr + ': ' + context.eventData[curr] + '</p>';
+                        },'');
+                        tooltip.innerHTML = tooltipText;
+                        let tooltipLocation = [context.eventData.clientX + 5, context.eventData.clientY + 5];
+                        tooltip.style.left = '6px';
+                        tooltip.style.top = '6px';
                         tooltip.style.opacity = 0;
-                        body.appendChild(tooltip);
+                        this.appendChild(tooltip);//Tooltip inserted into element being hovered
                         let fadeIn = window.setInterval(function() {
                             let tooltipOpacity = window.getComputedStyle(tooltip).opacity;
                             if (tooltipOpacity == 1) {  
@@ -150,8 +151,6 @@ export default class ContentWrapper extends Component {
 
                     }
 
-                    //if(the mouse position is within the coords of the tooltip)
-                    //keep the tooltip visible
                     function hideEventData(x, y, e) {
                         if(typeof fadeIn !== 'undefined')
                             clearInterval(fadeIn);                        
@@ -208,6 +207,7 @@ export default class ContentWrapper extends Component {
         //Get database content
 
         let eventData = {
+            'Event': evt.type,
             'target': evt.target,
             'bubbles': evt.bubbles,
             'clientX': evt.clientX,
