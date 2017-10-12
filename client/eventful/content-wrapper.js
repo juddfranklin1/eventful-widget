@@ -84,6 +84,73 @@ export default class ContentWrapper extends Component {
          * 
          */
 
+        function createEventMarker(context, eventMarker) {
+            eventMarker.style.top = context.eventData.clientY;
+            eventMarker.setAttribute('style', 'left: ' + context.eventData.clientX + 'px; top: ' + context.eventData.clientY + 'px')
+            eventMarker.style.left = context.eventData.clientX;
+            eventMarker.classList.add('event-marker');
+            eventMarker.setAttribute('data-eventid', context.eventId);
+            let body = document.querySelector('body');
+            body.appendChild(eventMarker);
+        }
+
+/**
+         * create a tooltip to house the event data
+         * This function should take an x and y coord, as well as the event data.
+         */
+        function showEventData(e) {
+            if(typeof fadeOut !== 'undefined')
+                clearInterval(fadeOut);
+            let oldToolTip = document.querySelector('.tooltip');
+            
+            let context = e.target.context;
+            
+            if (oldToolTip !== null && oldToolTip) {
+                oldToolTip.parentNode.removeChild(oldToolTip);
+            }
+            let tooltip = document.createElement('div');
+            tooltip.classList.add('tooltip');
+            let eventDataPoints = Object.keys(context.eventData);
+            let tooltipText = eventDataPoints.reduce(function(iter, curr, i){
+                return curr === 'Event' ? iter + '<p><b>' + context.eventData[curr] + '</b></p>' : iter + '<p>' + curr + ': ' + context.eventData[curr] + '</p>';
+            },'');
+            tooltip.innerHTML = tooltipText;
+            let tooltipLocation = [context.eventData.clientX + 5, context.eventData.clientY + 5];
+            tooltip.style.left = '6px';
+            tooltip.style.top = '6px';
+            tooltip.style.opacity = 0;
+            this.appendChild(tooltip);//Tooltip inserted into element being hovered
+            let fadeIn = window.setInterval(function() {
+                let tooltipOpacity = window.getComputedStyle(tooltip).opacity;
+                if (tooltipOpacity == 1) {  
+                    tooltip.addEventListener('mouseleave', hideEventData);
+                    clearInterval(fadeIn);
+                }
+
+                tooltip.style.opacity = Number.parseFloat(tooltipOpacity) + .05;
+            }, 50);
+
+        }
+
+        function hideEventData(e) {
+            if(typeof fadeIn !== 'undefined')
+                clearInterval(fadeIn);                        
+            let oldToolTip = document.querySelector('.tooltip');
+            if (!oldToolTip) {
+                return false;
+            }
+            let fadeOut = window.setInterval(function() {
+                let tooltipOpacity = window.getComputedStyle(oldToolTip).opacity;
+                if (tooltipOpacity <= 0.1) {
+                    if(oldToolTip.parentNode !== null)
+                        oldToolTip.parentNode.removeChild(oldToolTip);
+                    clearInterval(fadeOut);
+                }
+
+                oldToolTip.style.opacity = Number.parseFloat(tooltipOpacity) - .1;
+            }, 50);
+        }
+
         function getEvents() {
             database.ref('events').on('value', function(results) {
 
@@ -106,69 +173,12 @@ export default class ContentWrapper extends Component {
                         eventId: item
                     };
 
-                    //generate an event marker
                     let eventMarker = document.createElement('span');
-                    eventMarker.style.top = context.eventData.clientY;
-                    eventMarker.setAttribute('style', 'left: ' + context.eventData.clientX + 'px; top: ' + context.eventData.clientY + 'px')
-                    eventMarker.style.left = context.eventData.clientX;
-                    eventMarker.classList.add('event-marker');
-                    eventMarker.setAttribute('data-eventid', context.eventId);
-                    let body = document.querySelector('body');
-                    body.appendChild(eventMarker);
-                    
-                    /**
-                     * create a tooltip to house the event data
-                     * This function should take an x and y coord, as well as the event data.
-                     */
-                    function showEventData(x, y, e) {
-                        if(typeof fadeOut !== 'undefined')
-                            clearInterval(fadeOut);
-                        let oldToolTip = document.querySelector('.tooltip');
-                        if (oldToolTip !== null && oldToolTip) {
-                            oldToolTip.parentNode.removeChild(oldToolTip);
-                        }
-                        let tooltip = document.createElement('div');
-                        tooltip.classList.add('tooltip');
-                        let eventDataPoints = Object.keys(context.eventData);
-                        let tooltipText = eventDataPoints.reduce(function(iter, curr, i){
-                            return curr === 'Event' ? iter + '<p><b>' + context.eventData[curr] + '</b></p>' : iter + '<p>' + curr + ': ' + context.eventData[curr] + '</p>';
-                        },'');
-                        tooltip.innerHTML = tooltipText;
-                        let tooltipLocation = [context.eventData.clientX + 5, context.eventData.clientY + 5];
-                        tooltip.style.left = '6px';
-                        tooltip.style.top = '6px';
-                        tooltip.style.opacity = 0;
-                        this.appendChild(tooltip);//Tooltip inserted into element being hovered
-                        let fadeIn = window.setInterval(function() {
-                            let tooltipOpacity = window.getComputedStyle(tooltip).opacity;
-                            if (tooltipOpacity == 1) {  
-                                tooltip.addEventListener('mouseleave', hideEventData);
-                                clearInterval(fadeIn);
-                            }
 
-                            tooltip.style.opacity = Number.parseFloat(tooltipOpacity) + .05;
-                        }, 50);
+                    eventMarker.context = context;
 
-                    }
-
-                    function hideEventData(x, y, e) {
-                        if(typeof fadeIn !== 'undefined')
-                            clearInterval(fadeIn);                        
-                        let oldToolTip = document.querySelector('.tooltip');
-                        if (!oldToolTip) {
-                            return false;
-                        }
-                        let fadeOut = window.setInterval(function() {
-                            let tooltipOpacity = window.getComputedStyle(oldToolTip).opacity;
-                            if (tooltipOpacity <= 0.1) {
-                                if(oldToolTip.parentNode !== null)
-                                    oldToolTip.parentNode.removeChild(oldToolTip);
-                                clearInterval(fadeOut);
-                            }
-
-                            oldToolTip.style.opacity = Number.parseFloat(tooltipOpacity) - .1;
-                        }, 50);
-                    }
+                    //generate an event marker
+                    createEventMarker(context, eventMarker);
 
                     eventMarker.addEventListener('mouseenter', showEventData);
                     eventMarker.addEventListener('mouseleave', hideEventData);
@@ -243,6 +253,21 @@ export default class ContentWrapper extends Component {
 
     }
 
+    clearEvents() {
+        
+
+        let database = firebase.database();
+
+        let eventsRef = database.ref('events');
+
+        eventsRef.remove(function(){
+            let markers = document.querySelectorAll('.event-marker');
+            for(var i = 0; i < markers.length; i++) {
+                markers[i].parentNode.removeChild(markers[i]);
+            }
+        });
+    }
+
     changeTab(tab) {
         this.setState({
             activeTab: tab
@@ -277,6 +302,7 @@ export default class ContentWrapper extends Component {
             pageClasses = { this.state.pageClasses }
             selectedClasses = { this.state.selectedClasses }
             setLogEvent = { this.setLogEvent.bind(this) }
+            clearEvents = { this.clearEvents.bind(this) }
             logEvent = { this.state.logEvent }
             />;
 
