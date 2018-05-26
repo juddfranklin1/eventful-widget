@@ -5,6 +5,20 @@ import * as firebase from 'firebase';
 import 'firebase/database';
 import 'firebase/storage';
 
+// This file is not in the repository, so create a file in the eventful folder called config.js with content like this:
+/**
+ * export default {
+    apiKey: API_KEY_HERE,
+    authDomain: AUTH_DOMAIN_HERE,
+    databaseURL: DATABASE_URI_HERE,
+    projectId: PROJECT_ID_HERE,
+    storageBucket: "",
+    messagingSenderId: SENDER_ID_HERE
+};
+ * The better next step is to have a "save to database" toggle, and keep the credentials stored there.
+ */
+import config from './config';
+
 import OptionsWrapper from './options-wrapper.js';
 import TrackerWrapper from './tracker-wrapper.js';
 import AddTrackingWrapper from './add-tracking-wrapper.js';
@@ -64,15 +78,6 @@ export default class ContentWrapper extends Component {
         this.setState({
             pageClasses: classNames,
         });
-
-        const config = {
-            apiKey: "AIzaSyAPare5GoVNFSxqlCGcIpcPHWo9d2qPgLA",
-            authDomain: "eventful-60cde.firebaseapp.com",
-            databaseURL: "https://eventful-60cde.firebaseio.com",
-            projectId: "eventful-60cde",
-            storageBucket: "",
-            messagingSenderId: "20568324415"
-        };
 
         firebase.initializeApp(config);
 
