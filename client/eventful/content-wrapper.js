@@ -1,22 +1,38 @@
+/**
+ * Wraps the core content of the widget.
+ * Inside here all tracking will actually be enabled.
+ * 
+ * This component does too much.
+ * 
+ * It should simply contain and bridge the 3 primary internal components
+ * 
+ * Navigation - Gives the ability to toggle between the tracker and options tabs
+ * - Cookie for maintaining last state
+ * Tracker - Where the magic happens...
+ * - This sub-component should contain a running record of the elements and events to be tracked
+ * - Should offer global and detail views that drill down into event and element data.
+ * 
+ * Options (Gear or wrench icon)
+ * - toggle test mode
+ * - which would turn on or off the ability to generate elements to track events.
+ * 
+ * Add tracker interface (accessed by a plus sign icon)
+ * a. allowing a user to track a particular selector for a specific event
+ * b. The user should be able to pick from selectors farmed from the current page, or to add their own via text input
+ *      (a validator function can confirm that the selector returns results on a page or warn if no elements are found.).
+ * c. To make this possible, this would need to be a form with a dropdown, and a text input submitted via a button click event.
+ * 
+ * Each event should have its own tracking interface.
+ * This would be generated from an abstract component.
+ */
+
+
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 
 import * as firebase from 'firebase';
 import 'firebase/database';
 import 'firebase/storage';
-
-// This file is not in the repository, so create a file in the eventful folder called config.js with content like this:
-/**
- * export default {
-    apiKey: API_KEY_HERE,
-    authDomain: AUTH_DOMAIN_HERE,
-    databaseURL: DATABASE_URI_HERE,
-    projectId: PROJECT_ID_HERE,
-    storageBucket: "",
-    messagingSenderId: SENDER_ID_HERE
-};
- * The better next step is to have a "save to database" toggle, and keep the credentials stored there.
- */
 import config from './config';
 
 import OptionsWrapper from './options-wrapper.js';
@@ -25,24 +41,7 @@ import AddTrackingWrapper from './add-tracking-wrapper.js';
 import Navigation from './navigation.js';
 
 export default class ContentWrapper extends Component {
-    /*  This component does too much.
-     *  It should simply contain and bridge the 3 primary internal components
-     *  Navigation - Gives the ability to toggle between the tracker and options tabs
-     *    - Cookie for maintaining last state
-     *  Tracker - Where the magic happens...
-     *    - This sub-component should contain a running record of the elements and events to be tracked
-     *    - Should offer global and detail views that drill down into event and element data.
-     *  Options (Gear or wrench icon)
-     *    - toggle test mode
-     *      - which would turn on or off the ability to generate elements to track events.
-     *  Add tracker interface (accessed by a plus sign icon)
-     *    a. allowing a user to track a particular selector for a specific event
-     *    b. The user should be able to pick from selectors farmed from the current page, or to add their own via text input
-     *       (a validator function can confirm that the selector returns results on a page or warn if no elements are found.).
-     *    c. To make this possible, this would need to be a form with a dropdown, and a text input submitted via a button click event.
-     *  Each event should have its own tracking interface.
-     *    This would be generated from an abstract component.
-     */
+
     constructor(props) {
         super();
         this.state = {
@@ -57,7 +56,36 @@ export default class ContentWrapper extends Component {
         }
     }
 
-    // Lifecycle Events
+    // This file is not in the repository, so create a file in the eventful folder called config.js with content like this:
+/**
+ * export default {
+    apiKey: API_KEY_HERE,
+    authDomain: AUTH_DOMAIN_HERE,
+    databaseURL: DATABASE_URI_HERE,
+    projectId: PROJECT_ID_HERE,
+    storageBucket: "",
+    messagingSenderId: SENDER_ID_HERE
+};
+ * The better next step is to have a "save to database" toggle, and keep the credentials stored there.
+ */
+
+    configure(configType){// Prepared for abstraction of storage, but currently only handles firebase
+        let database = false;
+
+        if (configType === 'FIREBASE' && firebase){
+            firebase.initializeApp(config);
+
+            database = firebase.database();
+            /**
+             * Generic getEvents wrapper function
+             * call the firebase datastore for events
+             * Will need an optional param for specifying a narrower search.
+             * 
+             */
+        }
+
+        return database;
+    }
 
     componentWillMount() {
 
@@ -78,10 +106,11 @@ export default class ContentWrapper extends Component {
         this.setState({
             pageClasses: classNames,
         });
+        
+        if(!!!config) var config = false;
+        if(!!!firebase) var firebase = false;
 
-        firebase.initializeApp(config);
-
-        let database = firebase.database();
+        const database = this.configure('FIREBASE',config);
         /**
          * Generic getEvents wrapper function
          * call the firebase datastore for events
@@ -99,7 +128,7 @@ export default class ContentWrapper extends Component {
             body.appendChild(eventMarker);
         }
 
-/**
+        /**
          * create a tooltip to house the event data
          * This function should take an x and y coord, as well as the event data.
          */
@@ -157,38 +186,38 @@ export default class ContentWrapper extends Component {
         }
 
         function getEvents() {
-            database.ref('events').on('value', function(results) {
+            if(database){
+                database.ref('events').on('value', function(results) {
 
-                //handle results here.
+                    //handle results here.
 
-                /**
-                 * create an object that has each event in it
-                 * return that object
-                 * The object should have a method that can generate a tooltip on demand for any given event within that object
-                 */
+                    /**
+                     * create an object that has each event in it
+                     * return that object
+                     * The object should have a method that can generate a tooltip on demand for any given event within that object
+                     */
 
-                let allEvents = results.val();
-                let eventData = [];
-                for (var item in allEvents) { //loop through the events restructure the data
-                    if(typeof item.eventData !== 'object')
-                        console.log(firebase);
-                    let context = {
-                        event: allEvents[item].event,
-                        eventData: allEvents[item].eventData,
-                        eventId: item
-                    };
+                    let allEvents = results.val();
+                    let eventData = [];
+                    for (var item in allEvents) { //loop through the events restructure the data
+                        let context = {
+                            event: allEvents[item].event,
+                            eventData: allEvents[item].eventData,
+                            eventId: item
+                        };
 
-                    let eventMarker = document.createElement('span');
+                        let eventMarker = document.createElement('span');
 
-                    eventMarker.context = context;
+                        eventMarker.context = context;
 
-                    //generate an event marker
-                    createEventMarker(context, eventMarker);
+                        //generate an event marker
+                        createEventMarker(context, eventMarker);
 
-                    eventMarker.addEventListener('mouseenter', showEventData);
-                    eventMarker.addEventListener('mouseleave', hideEventData);
-                }
-            });
+                        eventMarker.addEventListener('mouseenter', showEventData);
+                        eventMarker.addEventListener('mouseleave', hideEventData);
+                    }
+                });
+            }
         }
 
         getEvents();
@@ -217,7 +246,6 @@ export default class ContentWrapper extends Component {
         eventMarker.classList.add('event-marker');
         el.appendChild(eventMarker);
 
-        let database = firebase.database();
         //Set tooltip for eventMarker
         //Get database content
 
@@ -231,13 +259,16 @@ export default class ContentWrapper extends Component {
             'screenY': evt.screenY
         };
 
-        let eventsReference = database.ref('events');
-
-        // use the set method to save data to the events
-        eventsReference.push({
-            event: evt.type,
-            eventData: eventData
-        });
+        if(typeof firebase !== 'undefined'){
+            const dataStore = firebase.database();
+            let eventsReference = dataStore.ref('events');
+    
+            // use the set method to save data to the events
+            eventsReference.push({
+                event: evt.type,
+                eventData: eventData
+            });
+        }
 
         if (this.state.logEvent) {
             console.info(evt);
@@ -258,8 +289,8 @@ export default class ContentWrapper extends Component {
 
     }
 
-    clearEvents() {
-        
+    clearEvents(firebase) {
+        if(!!firebase) return false;
 
         let database = firebase.database();
 
