@@ -1,35 +1,62 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 
-import AddElement from './add-element.js';
-import PickASelector from './pick-a-selector.js';
+import { Cookies } from 'react-cookie';
+
+import { CSSTransitionGroup } from 'react-transition-group' // ES6
+
+import TestElement from './test-element.js';
 
 export default class OptionsWrapper extends Component {
   constructor(props){
     super();
+
+    this.state = {
+
+      isTesting: false,
+      logEvent: props.logEvent || true
+
+    }
+
+  }
+
+  toggleTesting() {
+  
+    this.setState({ "isTesting": !this.state.isTesting });
+  
+  }
+
+  toggleLogEvent(){
+
+    this.setState({ "logEvent": !this.state.logEvent });
+    this.props.setLogEvent(this.state.logEvent);
   }
 
   render(){
-    function TestElements(props){//This just gives us some generated content to work with as needed.
-      if(props.isTesting){
+    function TestElements(isTesting, onAddElement){//This just gives us some generated content to work with as needed.
+      if(isTesting){
         return (
-          <div>
-            <AddElement elementName='test-1' onClick={ (name) => props.addElement(name) } />
-            <AddElement elementName='test-2' onClick={ (name) => props.addElement(name) } />
+          <div id="test-elements" key="testElements-1">
+            <h3>Add an element to test the tracking functionality</h3>
+            <TestElement elementName='test-1' />
+            <TestElement elementName='test-2' />
           </div>
         );
       }
       return <div />;
     }
     return(
-      <div className={ this.props.activeTab === 'options' ? 'options-wrapper section shown' : 'options-wrapper section hidden' }>
+      <div className='options-wrapper section' >
         <h2>Options</h2>
-        <button content="Test" onClick={ ()=> this.props.toggleTesting() }>Toggle Test</button>
-        <TestElements addElement={this.props.addElement} isTesting={ this.props.isTesting } />
-        <PickASelector
-          selectedClasses={ this.props.selectedClasses }
-          pageClasses={ this.props.pageClasses }
-          selectClass={ (sel) => this.props.selectClass(sel) } />
+        <button content="Test" onClick={ () => this.toggleTesting() }>Toggle Test</button>
+        <CSSTransitionGroup component="div"
+          transitionName="example"  
+          transitionLeaveTimeout={500}
+          transitionEnterTimeout={500} >
+          { TestElements(this.state.isTesting, this.onAddElement) }
+        </CSSTransitionGroup>
+        <p><button id="clearEventsButton" onClick={ () => this.props.clearEvents() }>Clear Existing Events</button></p>
+        <label htmlFor="logEventCheckbox">Log Events to console? <input id="logEventCheckbox" type="checkbox" onClick={ ()=> { this.toggleLogEvent(); if(this.state.logEvent && 'checked="checked"'){}; }} /></label>
       </div>
     );
   }
