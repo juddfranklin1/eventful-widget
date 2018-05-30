@@ -89,6 +89,7 @@ export default class ContentWrapper extends Component {
 
     componentWillMount() {
 
+        // Currently only gets elements with class attributes, obv.
         let classyElements = document.querySelectorAll('[class]');
 
         let unique = function(list, x) {
