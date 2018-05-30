@@ -33,12 +33,12 @@ import ReactDOM from 'react-dom';
 import * as firebase from 'firebase';
 import 'firebase/database';
 import 'firebase/storage';
-import config from './config';
+import config from '../config';
 
-import OptionsWrapper from './options-wrapper.js';
-import TrackerWrapper from './tracker-wrapper.js';
-import AddTrackingWrapper from './add-tracking-wrapper.js';
-import Navigation from './navigation.js';
+import Options from '../options/options.js';
+import Tracker from '../tracker/tracker.js';
+import AddTrackingWrapper from '../tracking-adder/tracking-adder.js';
+import Navigation from '../navigation/navigation.js';
 
 export default class ContentWrapper extends Component {
 
@@ -56,7 +56,7 @@ export default class ContentWrapper extends Component {
         }
     }
 
-    // This file is not in the repository, so create a file in the eventful folder called config.js with content like this:
+    // This file is not in the repository, so create a file in the client folder called config.js with content like this:
 /**
  * export default {
     apiKey: API_KEY_HERE,
@@ -291,7 +291,7 @@ export default class ContentWrapper extends Component {
     }
 
     clearEvents(firebase) {
-        if(!!firebase) return false;
+        if(!firebase) return false;
 
         let database = firebase.database();
 
@@ -326,7 +326,7 @@ export default class ContentWrapper extends Component {
 
         if (this.state.activeTab === "add") {
 
-            activeTabContent = < AddTrackingWrapper
+            activeTabContent = <AddTrackingWrapper
             pageClasses = { this.state.pageClasses }
             selectedClasses = { this.state.selectedClasses }
             updateCounter = { this.updateCounter.bind(this) }
@@ -335,17 +335,17 @@ export default class ContentWrapper extends Component {
 
         } else if (this.state.activeTab === "options") {
 
-            activeTabContent = < OptionsWrapper
+            activeTabContent = <Options
             pageClasses = { this.state.pageClasses }
             selectedClasses = { this.state.selectedClasses }
             setLogEvent = { this.setLogEvent.bind(this) }
-            clearEvents = { this.clearEvents.bind(this) }
+            clearEvents = { this.clearEvents.bind(this, firebase) }
             logEvent = { this.state.logEvent }
             />;
 
         } else {
 
-            activeTabContent = < TrackerWrapper
+            activeTabContent = <Tracker
             counter = { this.state.counter }
             latestUpdate = { this.state.latestUpdate }
             selectedClasses = { this.state.selectedClasses }

@@ -1,9 +1,9 @@
 import React,{Component} from 'react';
 import ReactDOM from 'react-dom';
 
-import Counter from './counter.js';
+import Counter from '../counter/counter.js';
 
-const TrackerWrapper = function(props){
+const Tracker = function(props){
     return(
       <div className='tracker-wrapper section'>
         <h2>Tracker</h2>
@@ -15,4 +15,4 @@ const TrackerWrapper = function(props){
       </div>
     );
 }
-export default TrackerWrapper
+export default Tracker

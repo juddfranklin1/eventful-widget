@@ -1,11 +1,11 @@
 import React,{Component} from 'react';
 import ReactDOM from 'react-dom';
 
-import PickASelector from './pick-a-selector.js';
+import SelectorPicker from '../selector-picker/selector-picker.js';
 
 /* The component where we will be able to track new elements or new events */
 
-export default class AddTrackingWrapper extends Component {
+export default class TrackingAdder extends Component {
   constructor(props) {
     super();
     this.state = {
@@ -77,34 +77,32 @@ export default class AddTrackingWrapper extends Component {
         
         <h2>Add Tracking</h2>
         <h3>Pick some classes to track events on.</h3>
-        <PickASelector
+        <SelectorPicker
           selectedClasses={ this.props.selectedClasses }
           pageClasses={ this.props.pageClasses }
           eventName="click"
           selectClass={ (sel, evt) => this.onSelectClass(sel, 'click') } />
 
-        <PickASelector
+        <SelectorPicker
           selectedClasses={ this.props.selectedClasses }
           pageClasses={ this.props.pageClasses }
           eventName="mouseenter"
           selectClass={ (sel, evt) => this.onSelectClass(sel, 'mouseenter') } />
-        <PickASelector
+        <SelectorPicker
           selectedClasses={ this.props.selectedClasses }
           pageClasses={ this.props.pageClasses }
           eventName="mouseleave"
           selectClass={ (sel, evt) => this.onSelectClass(sel, 'mouseleave') } />
-        <PickASelector
+        <SelectorPicker
           selectedClasses={ this.props.selectedClasses }
           pageClasses={ this.props.pageClasses }
           eventName="mousedown"
           selectClass={ (sel, evt) => this.onSelectClass(sel, 'mousedown') } />
-        <PickASelector
+        <SelectorPicker
           selectedClasses={ this.props.selectedClasses }
           pageClasses={ this.props.pageClasses }
           eventName="mouseup"
           selectClass={ (sel, evt) => this.onSelectClass(sel, 'mouseup') } />
-
-
       </div>
     );
   };

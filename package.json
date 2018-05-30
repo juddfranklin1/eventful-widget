@@ -4,7 +4,7 @@
   "description": "A widget for tracking events on a page.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha --reporter spec testSetup.js \"components/*.spec.js\"",
     "start": "webpack-dev-server --port 9090"
   },
   "repository": {
@@ -29,6 +29,7 @@
     "react": "^15.6.2",
     "react-cookie": "^2.1.1",
     "react-dom": "^15.6.2",
+    "react-select": "^1.2.1",
     "react-transition-group": "^1.2.1",
     "webpack": "^2.7.0",
     "webpack-dev-server": "^2.9.1"
@@ -36,8 +37,12 @@
   "devDependencies": {
     "autoprefixer": "^8.5.1",
     "babel-preset-stage-0": "^6.24.1",
+    "chai": "^4.1.2",
     "css-loader": "^0.26.2",
+    "enzyme": "^3.3.0",
     "html-webpack-plugin": "^2.30.1",
+    "jsdom": "^11.11.0",
+    "mocha": "^5.2.0",
     "postcss-color-function": "^4.0.1",
     "postcss-import": "^11.1.0",
     "postcss-initial": "^2.0.0",
@@ -45,7 +50,9 @@
     "postcss-mixins": "^6.2.0",
     "postcss-nested": "^3.0.0",
     "postcss-simple-vars": "^4.1.0",
+    "react-addons-test-utils": "^15.6.2",
     "react-icons": "^2.2.7",
+    "sinon": "^5.0.10",
     "style-loader": "^0.13.2"
   }
 }

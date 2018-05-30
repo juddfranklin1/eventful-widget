@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import './eventful/App.css';
-import Eventful from './eventful/index.js';
+import './styles/App.css';
+import Eventful from './components/index.js';
 
 
 // ========================================

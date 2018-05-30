@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 
-export default class TestElement extends Component {
+export default class TestGenerator extends Component {
     constructor(props) {
         super();
     }

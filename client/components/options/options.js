@@ -5,9 +5,9 @@ import { Cookies } from 'react-cookie';
 
 import { CSSTransitionGroup } from 'react-transition-group' // ES6
 
-import TestElement from './test-element.js';
+import TestGenerator from '../test-generator/test-generator.js';
 
-export default class OptionsWrapper extends Component {
+export default class Options extends Component {
   constructor(props){
     super();
 
@@ -38,8 +38,8 @@ export default class OptionsWrapper extends Component {
         return (
           <div id="test-elements" key="testElements-1">
             <h3>Add an element to test the tracking functionality</h3>
-            <TestElement elementName='test-1' />
-            <TestElement elementName='test-2' />
+            <TestGenerator elementName='test-1' />
+            <TestGenerator elementName='test-2' />
           </div>
         );
       }
