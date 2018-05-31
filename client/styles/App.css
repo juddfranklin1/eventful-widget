@@ -79,6 +79,7 @@
   text-decoration: none;
   transition: color 1s;
   -webkit-transition: color 1s;
+  text-transform: capitalize;
 }
 .shown .eventful-toggle-tab {
   background: white;
@@ -110,6 +111,7 @@
 .eventful-navigation {
   list-style-type: none;
   padding: 0;
+  margin-top: 0;
 }
 .eventful-navigation:after {
   content: '';
@@ -118,7 +120,7 @@
 }
 .eventful-navigation li {
   float: left;
-  margin: 0 5px;
+  margin: 0 0;
   background-color: transparent;
   -webkit-transition: background-color 500ms linear;
   -ms-transition: background-color 500ms linear;
@@ -201,4 +203,30 @@ button[content="Test"] {
 }
 .tooltip p {
   margin: .25rem 0;
+}
+
+.test-1, .test-2 {
+
+  margin: 5rem;
+  padding: 3rem;
+  background: #eee;
+  position: relative;
+
+}
+.test-1:before,
+.test-2:before{
+  font-size: 2rem;
+  position: absolute;
+  top:2rem;
+  left:0;
+  right:0;
+  bottom:0;
+  text-align: center;
+  color: #05f;
+}
+.test-1:before{
+  content: 'test-1';
+}
+.test-2:before{
+  content: 'test-2';
 }

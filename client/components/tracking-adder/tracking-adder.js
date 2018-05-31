@@ -1,6 +1,8 @@
 import React,{Component} from 'react';
 import ReactDOM from 'react-dom';
 
+
+import Select from 'react-select';
 import SelectorPicker from '../selector-picker/selector-picker.js';
 
 /* The component where we will be able to track new elements or new events */
@@ -9,7 +11,17 @@ export default class TrackingAdder extends Component {
   constructor(props) {
     super();
     this.state = {
-
+      chosenEvent: '',
+      eventOptions: [
+        'click',
+        'mouseenter',
+        'mouseleave',
+        'mousedown',
+        'mouseup',
+        'keydown',
+        'focus',
+        'blur'
+      ],  
     }
   }
   
@@ -71,38 +83,53 @@ export default class TrackingAdder extends Component {
 
   }
 
+  handleChange (selectedOption){
+    this.setState({
+
+			chosenEvent: selectedOption.value,
+    
+    });
+  }
+
+  renderEventPicker() {
+    if (this.state.chosenEvent === ''){
+      const eventOptions = this.state.eventOptions.map((e,i) =>( { value: e, label: e } ));
+
+      return (
+        <div className='choose-event add-tracking-wrapper'>
+          <h3>Pick an event to track.</h3>
+          <Select
+            name='chooseEvent'
+            value={ this.state.selectValue }
+            onChange={ this.handleChange.bind(this) }
+            options={ eventOptions }
+            id="chooseEvent"
+          />
+        </div>
+      );
+    } else {
+      return (
+        <div className='choose-class add-tracking-wrapper'>
+              <h3>Pick some classes to track events on.</h3>
+  
+              <SelectorPicker
+                selectedClasses={ this.props.selectedClasses }
+                pageClasses={ this.props.pageClasses }
+                eventName={ this.state.chosenEvent }
+                selectClass={ (sel, evt) => this.onSelectClass(sel, this.state.chosenEvent) } />
+        </div>
+      );
+    }
+  }
+
   render() {
     return (
       <div className='add-wrapper section'>
         
         <h2>Add Tracking</h2>
-        <h3>Pick some classes to track events on.</h3>
-        <SelectorPicker
-          selectedClasses={ this.props.selectedClasses }
-          pageClasses={ this.props.pageClasses }
-          eventName="click"
-          selectClass={ (sel, evt) => this.onSelectClass(sel, 'click') } />
 
-        <SelectorPicker
-          selectedClasses={ this.props.selectedClasses }
-          pageClasses={ this.props.pageClasses }
-          eventName="mouseenter"
-          selectClass={ (sel, evt) => this.onSelectClass(sel, 'mouseenter') } />
-        <SelectorPicker
-          selectedClasses={ this.props.selectedClasses }
-          pageClasses={ this.props.pageClasses }
-          eventName="mouseleave"
-          selectClass={ (sel, evt) => this.onSelectClass(sel, 'mouseleave') } />
-        <SelectorPicker
-          selectedClasses={ this.props.selectedClasses }
-          pageClasses={ this.props.pageClasses }
-          eventName="mousedown"
-          selectClass={ (sel, evt) => this.onSelectClass(sel, 'mousedown') } />
-        <SelectorPicker
-          selectedClasses={ this.props.selectedClasses }
-          pageClasses={ this.props.pageClasses }
-          eventName="mouseup"
-          selectClass={ (sel, evt) => this.onSelectClass(sel, 'mouseup') } />
+        { this.renderEventPicker() }
+
       </div>
     );
   };

@@ -20,14 +20,15 @@ module.exports = {
       { test: /\.jsx$/,
 				loader: 'babel-loader', 
 				exclude: /node_modules/ },
-			{ test: /\.css$/,
-				include: 'client/styles',
-				loader: 'style!css?modules&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]&camelCase!postcss'
-			}
+			{ test: /\.css$/, use: [
+				{ loader: 'style-loader' },
+				{ loader: 'css-loader',
+					options: {
+						modules: false
+					}
+				}
+			]}
     ]
-	},
-	postcss: function() {
-    return postCSSConfig;
   },
   plugins: [HtmlWebpackPluginConfig]
 }

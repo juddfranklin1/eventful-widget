@@ -13,7 +13,7 @@ export default class Options extends Component {
 
     this.state = {
 
-      isTesting: false,
+      isTesting: true,
       logEvent: props.logEvent || true
 
     }
@@ -48,13 +48,9 @@ export default class Options extends Component {
     return(
       <div className='options-wrapper section' >
         <h2>Options</h2>
-        <button content="Test" onClick={ () => this.toggleTesting() }>Toggle Test</button>
-        <CSSTransitionGroup component="div"
-          transitionName="example"  
-          transitionLeaveTimeout={500}
-          transitionEnterTimeout={500} >
-          { TestElements(this.state.isTesting, this.onAddElement) }
-        </CSSTransitionGroup>
+        
+        { TestElements(this.state.isTesting, this.onAddElement) }
+        
         <p><button id="clearEventsButton" onClick={ () => this.props.clearEvents() }>Clear Existing Events</button></p>
         <label htmlFor="logEventCheckbox">Log Events to console? <input id="logEventCheckbox" type="checkbox" onClick={ ()=> { this.toggleLogEvent(); if(this.state.logEvent && 'checked="checked"'){}; }} /></label>
       </div>
