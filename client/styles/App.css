@@ -193,6 +193,8 @@ button[content="Test"] {
 }
 
 .tooltip {
+  left: 3px;
+  top: 3px;
   background: white;
   border: 1px solid black;
   padding: 1rem 2rem;
@@ -200,9 +202,39 @@ button[content="Test"] {
   width: 8rem;
   word-break: break-all;
   z-index: 19000;
+  opacity: 0;
+  transition: .5s opacity;
 }
+
 .tooltip p {
   margin: .25rem 0;
+}
+
+.close-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 20px;
+  height: 20px;
+  display: block;
+  cursor: pointer;
+}
+.close-btn:before {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  top: 0;
+  right: 0;
+  content: 'X';
+  font-family: sans-serif;
+}
+
+.show {
+  opacity: 1;
+}
+
+.hide {
+  opacity: 0;
 }
 
 .test-1, .test-2 {

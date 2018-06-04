@@ -29,7 +29,7 @@ export default class SelectorPicker extends Component {
 			selectValue: selectedOption.value,
     });
     
-    this.props.selectClass(selectedOption.value, this.props.eventName);
+    this.props.selectSelector(selectedOption.value, this.props.eventName);
   }
   
   updateValue = function (newValue) {
@@ -39,7 +39,18 @@ export default class SelectorPicker extends Component {
   
   render(){
 
-    const selectorOptions = this.props.pageClasses.map((e,i)=>( { value: e, label: e } ));
+    const selectorOptions = this.props.pageSelectors.map(function(e,i){
+        if (e.type === 'class' && e.value.indexOf('.') === -1) {
+            e.value = '.' + e.value;
+        } else if (e.type === 'id' && e.value.indexOf('#') === -1) {
+            e.value = '#' + e.value;
+        } else {
+          e.value = e.value.toLowerCase();
+        }
+      return {
+        value: e.value, label: e.value
+      }
+    });
 
     const label = this.props.eventName + '-label';  
 

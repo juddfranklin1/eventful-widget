@@ -7,8 +7,8 @@ import ReactDOM from 'react-dom';
 import { instanceOf } from 'prop-types';
 import { Cookies } from 'react-cookie';
 
-import WidgetToggle from './widget-toggle/widget-toggle.js';
-import ContentWrapper from './content-wrapper/content-wrapper.js';
+import WidgetToggle from './WidgetToggle/WidgetToggle.js';
+import ContentContainer from './ContentContainer/ContentContainer.js';
 
 export default class Eventful extends Component {
   /*  Parent component
@@ -54,7 +54,7 @@ export default class Eventful extends Component {
 
       <div className= {this.state.hidden ? "eventful-container hidden " + this.state.alignment : "eventful-container shown " + this.state.alignment }>
         <WidgetToggle onToggle={ this.onToggle.bind(this,this.state.hidden) } hidden={ this.state.hidden } />
-        <ContentWrapper className={ this.state.activeTab } />
+        <ContentContainer className={ this.state.activeTab } />
       </div>
     
     )
