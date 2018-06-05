@@ -48,7 +48,6 @@ export default class ContentContainer extends Component {
         super();
 
         this.state = {
-            counter: 0,
             element: '',
             pageSelectors: [],
             activeTab: 'tracker',
@@ -157,7 +156,6 @@ export default class ContentContainer extends Component {
          * @function
          * @param {Event} context
          * @param {HTMLElement} eventMarker
-         * @author juddfranklin1
          * 
          * @description create a tooltip to house the event data
          * 
@@ -179,7 +177,6 @@ export default class ContentContainer extends Component {
          * @name toggleTooltip
          * @function
          * @param {Event} e - the event associated with the data.
-         * @author juddfranklin1
          * 
          * @description create a tooltip to house the event data and display it; or remove it.
          * 
@@ -224,19 +221,9 @@ export default class ContentContainer extends Component {
 
             }
         }
-        /**
-         * @name hideEventData
-         * @function
-         * @param {Event} e - the event associated with the data.
-         * @author juddfranklin1
-         * 
-         * @description - triggers the fadeOut behavior
-         * 
-         */
 
         /**
          * @function getEvents
-         * @author juddfranklin1
          * 
          * @description  - wrapper function to get and process events from firebase
          * 
@@ -287,7 +274,7 @@ export default class ContentContainer extends Component {
 
     }
 
-    updateCounter(text, evt, el) {
+    updateCounter(text, evt, el, sel) {
         // use lodash to convert event data to an array for logging.
 
         let eventMarker = document.createElement('span');
@@ -330,8 +317,14 @@ export default class ContentContainer extends Component {
             eventMarker.style.backgroundColor = 'blue';
         }
 
+        const newSelectors = this.state.selectedSelectors.map(function(val){// Redux should do this.
+            if(val.selector === sel && val.event === event.type)
+                val.count += 1;
+
+            return val;
+        });
         this.setState({
-            counter: this.state.counter + 1,// counter is extremely generic. Counts events of all tracked types on all tracked elements.
+            selectedSelectors: newSelectors,
             latestUpdate: text
         });
 
@@ -397,7 +390,6 @@ export default class ContentContainer extends Component {
         } else {
 
             activeTabContent = <Tracker
-            counter = { this.state.counter }
             latestUpdate = { this.state.latestUpdate }
             selectedSelectors = { this.state.selectedSelectors }
             logEvent = { this.state.logEvent }

@@ -11,7 +11,6 @@ const Tracker = function(props){
 
         <Counter
           targetSelectors={ props.selectedSelectors }
-          eventCount={ props.counter }
           event={ props.lastEvent }
           update={ props.latestUpdate } />
       </div>

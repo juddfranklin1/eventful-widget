@@ -12,7 +12,9 @@ export default class TrackingAdder extends Component {
     super();
     this.state = {
       chosenEvent: '',
-      eventOptions: [// expand this array as event groups expand
+      eventOptions: [
+        // expand this array as event groups expand
+        // https://developer.mozilla.org/en-US/docs/Web/Events
         { 
           eventGroup: 'mouse',
           events: [
@@ -20,7 +22,11 @@ export default class TrackingAdder extends Component {
             'mouseenter',
             'mouseleave',
             'mousedown',
-            'mouseup'
+            'mouseup',
+            'dblclick',
+            'mouseover',
+            'mouseout',
+            'contextmenu'
           ]
         },
         {
@@ -40,11 +46,45 @@ export default class TrackingAdder extends Component {
             'keydown',
             'keyup',
             'keypress',
-            'input'
+            'input',
+          ]
+        },
+        {
+          eventGroup: 'media',
+          events: [
+            'playing',
+            'waiting',
+            'seeking',
+            'seeked',
+            'ended',
+            'loadedmetadata',
+            'loadeddata',
+            'canplay',
+            'canplaythrough',
+            'durationchange',
+            'timeupdate',
+            'play',
+            'pause',
+            'ratechange',
+            'volumechange',
+            'suspend',
+            'emptied',
+            'stalled',
+          ]
+        },
+        {
+          eventGroup: 'progress',
+          events: [
+            'loadstart',
+            'progress',
+            'error',
+            'abort',
+            'load',
+            'loadend'
           ]
         }
         // etc...
-      ],  
+      ],
     }
   }
   
@@ -55,7 +95,7 @@ export default class TrackingAdder extends Component {
   delegateEvent(eventType,newClass) {
     const evt = eventType || 'click';
     const that = this;
-    const targetSelectors = Array.of(newClass) || this.state.selectedSelectors;
+    const targetSelectors = Array.of(newClass) || this.props.selectedSelectors;
 
     targetSelectors.map(function(selector)
     {
@@ -75,6 +115,7 @@ export default class TrackingAdder extends Component {
         while (el !== this && (failsFilter = check === -1) && (el = el.parentNode));
         if (!failsFilter) {
           if(!el.hasAttribute('eventful-tracked-' + evt)){//protect against duplicate event listener
+            that.sel = selector;
             el.addEventListener(evt, that.countEm.bind(that), { capture: false, once: false, passive: true });
             el.setAttribute('eventful-tracked-' + evt,'true');
           }
@@ -89,16 +130,38 @@ export default class TrackingAdder extends Component {
     if (typeof(element.innerHTML) === 'string') {
       description += '.' + element.className + '.';
     }
-    this.props.updateCounter(description, event, element);
+    this.props.updateCounter(description, event, element, this.sel);
     return true;
   };
 
-  onSelectSelector(toAdd,evt) {
+  /**
+   * @name onSelectSelector
+   * 
+   * @param {String} toAdd - selector to be tracked
+   * @param {String} evt - name of event to be tracked 
+   * 
+   * update the list of selected selectors with an object
+   * containing the most recently selected selector matched with the event selected.
+   * 
+   */
+
+  onSelectSelector(toAdd, evt) {
     let currentlySelected = this.props.selectedSelectors;
     
-    if(currentlySelected.indexOf(toAdd) === -1){
-    
-      currentlySelected[currentlySelected.length] = toAdd;
+    if(currentlySelected.indexOf(toAdd) === -1){// 
+      /**
+       *  This is where we construct the actual tracking data.
+       *  The more carefully we construct this object, the more robust the analytics can be.
+       *  Currently, it gives us:
+       *   - event type,
+       *   - associated selector (what was chosen in the dropdown)
+       *   - event count at 0
+       *   
+       *  Could also have an "events" property which could be an array of events tracked data.
+       *  Could have event category
+       */
+
+      currentlySelected[currentlySelected.length] = { selector: toAdd, event: evt, count: 0 };
     
       this.setState({
     
