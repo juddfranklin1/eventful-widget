@@ -69,7 +69,7 @@ export default class TrackingAdder extends Component {
         } else if (selector.indexOf('.') !== -1) {
           var check = el.className.indexOf(selector.substring(1));
         } else {
-          var check = el.elementName.toLowerCase().indexOf(selector);
+          var check = el.nodeName.toLowerCase().indexOf(selector);
         }
 
         while (el !== this && (failsFilter = check === -1) && (el = el.parentNode));
