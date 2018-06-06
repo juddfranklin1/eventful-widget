@@ -74,6 +74,8 @@ export default class ContentContainer extends Component {
      *  https://github.com/juddfranklin1/eventful-widget/issues/6
     */
 
+    flag = false;
+
     configure(configType) {// Prepared for abstraction of storage, but currently only handles firebase
         let database = false;
 
@@ -117,7 +119,7 @@ export default class ContentContainer extends Component {
         });
 
         
-        const treeWalker = document.createTreeWalker(
+        const DOMWalker = document.createTreeWalker(
             document.body,
             NodeFilter.SHOW_ELEMENT,
             { acceptNode: function(node) { if(node.tagName !== 'SCRIPT' && node.id !== 'eventful-root') return NodeFilter.FILTER_ACCEPT; } },
@@ -126,7 +128,7 @@ export default class ContentContainer extends Component {
         
         const allElements = [];
           
-        while(treeWalker.nextNode()) allElements.push(treeWalker.currentNode);
+        while(DOMWalker.nextNode()) allElements.push(DOMWalker.currentNode);
 
         const tagNames = [].reduce.call(allElements,function(acc,el){
                 acc.push(el.tagName);
@@ -150,28 +152,6 @@ export default class ContentContainer extends Component {
         if(!!!firebase) var firebase = false;
 
         const database = this.configure('FIREBASE',config);
-
-        /**
-         * @name createEventMarker
-         * @function
-         * @param {Event} context
-         * @param {HTMLElement} eventMarker
-         * 
-         * @description create a tooltip to house the event data
-         * 
-         * @
-         * This function should take an x and y coord, as well as the event data.
-         * 
-         */
-        const createEventMarker = function(context, eventMarker) {
-            const leftVal = context.eventData.clientX + window.pageXOffset;
-            const topVal = context.eventData.clientY + window.pageYOffset;
-            eventMarker.setAttribute('style', 'left: ' + leftVal + 'px; top: ' + topVal + 'px')
-            eventMarker.classList.add('event-marker');
-            eventMarker.setAttribute('data-eventid', context.eventId);
-            let body = document.querySelector('body');
-            body.appendChild(eventMarker);
-        }
 
         /**
          * @name toggleTooltip
@@ -234,7 +214,8 @@ export default class ContentContainer extends Component {
          * Could be abstracted to allow for an API for choosing your own callback behavior.
          * 
          */
-        const getEvents = function() { 
+        const getEvents = function(that) {
+            
             if(database){ // Currently does nothing if not connected to database. Should also check for local storage option and load from there.
                 database.ref('events').on('value', function(results) {
 
@@ -246,50 +227,88 @@ export default class ContentContainer extends Component {
                      * The object should have a method that can generate a tooltip on demand for any given event within that object
                      */
 
-                    let allEvents = results.val();
-                    let eventData = [];
-                    for (var item in allEvents) { //loop through the events and restructure the data
-                        let context = {
-                            event: allEvents[item].event,
-                            eventData: allEvents[item].eventData,
-                            eventId: item
-                        };
-
-                        let eventMarker = document.createElement('span');
-
-                        eventMarker.context = context;
-
-                        //generate an event marker
-                        createEventMarker(context, eventMarker);
-
-                        eventMarker.addEventListener('click', toggleTooltip,{capture:true});
+                    const allEvents = results.val();
+                    const eventData = [];
+                    if(!that.flag){
+                        for (var item in allEvents) { //loop through the events and restructure the data
+                            let context = {
+                                event: allEvents[item].event,
+                                eventData: allEvents[item].eventData,
+                                eventId: item
+                            };
+    
+                            //generate an event marker
+                            const eventMarker = that.createEventMarker(context, context.eventId);
+    
+                            if (that.state.logEvent) {
+                                console.info('************* STORED EVENT DATA OBJECT ****************');
+                                console.info(context.eventData);
+                            }
+                            eventMarker.addEventListener('click', toggleTooltip,{capture:true});
+                        }
+                        that.flag = !that.flag;
                     }
+
                 });
             }
         }
 
-        getEvents();
+        getEvents(that);
 
         return;
 
     }
 
-    updateCounter(text, evt, el, sel) {
-        // use lodash to convert event data to an array for logging.
-
+    /**
+     * @name createEventMarker
+     * @function
+     * @param {Object} context - info about the event
+     * @param {String} [eventId] - unique identifier provided by Firebase
+     * 
+     * @description create a tooltip to house the event data
+     * 
+     * This function should take an x and y coord, as well as the event data.
+     * 
+     */
+    createEventMarker(context, eventId) {
         let eventMarker = document.createElement('span');
-        eventMarker.style.top = evt.clientY;
-
-        eventMarker.style.left = evt.clientX;
         eventMarker.classList.add('event-marker');
-        el.appendChild(eventMarker);
+        
+        const leftVal = context.eventData.clientX;
+        const topVal = context.eventData.clientY;
+        eventMarker.setAttribute('style', 'left: ' + leftVal + 'px; top: ' + topVal + 'px');
+        if(typeof eventId !== 'undefined')
+            eventMarker.setAttribute('data-eventid', eventId);
 
-        //Set tooltip for eventMarker
-        //Get database content
+        if (context.event.altKey) {// Does different stuff if alt key is pressed.
+            eventMarker.style.backgroundColor = 'blue';
+        }
 
-        let eventData = {
-            'Event': evt.type,
-            'target': evt.target,
+        document.body.appendChild(eventMarker);
+
+        return eventMarker;
+    }
+
+    /**
+     * @name updateCounter
+     * 
+     * @param {String} text - message linked to event
+     * @param {String} evt - event type associated with tracked event
+     * @param {String} el - element targeted by event
+     * @param {String} sel - selector associated with tracked event
+     * 
+     * @description - Updates state to increment the counter and change the overview tab content
+     * 
+     * Currently also creates event marker. That should be a separate function.
+     */
+    updateCounter(text, evt, el, sel) {
+        // use lodash to flatten event data to an array for logging.
+
+        // Mark the location of the event
+        const eventData = {
+            'selector': sel,
+            'event': evt.type,
+            'targetHTML': evt.target.outerHTML,
             'bubbles': evt.bubbles,
             'clientX': evt.clientX,
             'clientY': evt.clientY,
@@ -298,9 +317,19 @@ export default class ContentContainer extends Component {
             'altKey': evt.altKey
         };
 
+        let context = {
+            event: evt,
+            eventData: eventData,
+            eventId: 'new-event'
+        };
+
+        const eventMarker = this.createEventMarker(context);
+        
+        //
+
         if(typeof firebase !== 'undefined'){ // store - currently only firebase.
             const dataStore = firebase.database();
-            let eventsReference = dataStore.ref('events');
+            const eventsReference = dataStore.ref('events');
     
             eventsReference.push({
                 event: evt.type,
@@ -309,12 +338,13 @@ export default class ContentContainer extends Component {
         }
 
         if (this.state.logEvent) {
+            console.info('************ BEGIN EVENT DATA ***************');
             console.info(evt);
+            console.info('************ SAVED EVENT DATA OBJECT ***************');
+            console.info(eventData);
+            console.info('************ TARGETED ELEMENT ***************');
             console.info(el);
-        }
-
-        if (evt.altKey) {// Does different stuff if alt key is pressed.
-            eventMarker.style.backgroundColor = 'blue';
+            console.info('************ END EVENT DATA ***************');
         }
 
         const newSelectors = this.state.selectedSelectors.map(function(val){// Redux should do this.
@@ -346,6 +376,16 @@ export default class ContentContainer extends Component {
             }
         });
     }
+
+    /**
+     * @name removeTracking
+     * 
+     * @param {String} eventName - name of event associated with tracker to remove
+     * @param {String} selector - selector associated with tracker to remove
+     * 
+     * @description - Intended to allow for quick removal of tracking.
+     * removes previously delegated events.
+     */
 
     changeTab(tab) {
         this.setState({

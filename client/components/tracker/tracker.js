@@ -10,6 +10,7 @@ const Tracker = function(props){
         <h2>Tracker</h2>
 
         <Counter
+          removeTracking={ props.removeTracking }
           targetSelectors={ props.selectedSelectors }
           event={ props.lastEvent }
           update={ props.latestUpdate } />
