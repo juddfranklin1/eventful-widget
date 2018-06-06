@@ -14,7 +14,13 @@ data can be stored in Firebase if desired. More options for data storage is a fu
 
 The Browser is ultra-powerful and it's the hidden engine of so many of our applications. However, the events triggered on a page are mysterious things. This tool is designed to expose data that will give people a window into learning about browser events. The idea is this: Using a react-based widget that functions independently of other elements on a page, a user can place a single script on their page, which will render a widget and then choose elements that they want to track, and then select events that they want to track on those elements.
 
+![Closed Widget](https://user-images.githubusercontent.com/1385995/41009827-55516d38-68e8-11e8-8b6c-2cda4f01a2f8.png)
+(The widget in it's "closed" state)
+
 The widget will mark where events have occurred on a page, and provide tooltips and/or console.logs that describe the past event behavior. This widget, is built with a simple React frontend. It is intended to be droppable onto any webpage and allow you to track events of your choosing on elements of your choosing. Cookies are used for session-based persistence of tracking (and for nothing else). Also, the system is set up to store very basic event data to firebase for future reference.
+
+![Open Widget](https://user-images.githubusercontent.com/1385995/41009833-5933c4be-68e8-11e8-9d55-931c2cf90abc.png)
+(The widget in it's "open" state)
 
 To try this out locally, webpack starts bundles the scripts and then drops them onto a simple html page running on a simple server. This bundle can be placed on any page you like. Namespace collisions are extremely unlikely but certainly not impossible.
 
