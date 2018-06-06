@@ -1,19 +1,18 @@
 # Eventful
 
 ## Up and Running
-npm install
-npm start
-npm test
-(testing in mocha)
+* npm install
+* npm start
 
-(yarn can be used if desired)
+npm test
+(testing tbd) Strongly considering using cypress.io for testing.
 
 backed by webpack
-data store currently set to AWS, but flexibility in data storage will be provided.
+data can be stored in Firebase if desired. More options for data storage is a future priority.
 
 ## A little widget that is intended to track events on a page.
 
-While this is not a necessary tool, it should be a helpful tool for people interested in learning about JavaScript events that occur on the page. The idea is this: Using a react-based widget that functions independently of other elements on a page, a user can use a widget and then choose elements that they want to track, and then select events that they want to track on those elements.
+The Browser is ultra-powerful and it's the hidden engine of so many of our applications. However, the events triggered on a page are mysterious things. This tool is designed to expose data that will give people a window into learning about browser events. The idea is this: Using a react-based widget that functions independently of other elements on a page, a user can place a single script on their page, which will render a widget and then choose elements that they want to track, and then select events that they want to track on those elements.
 
 The widget will mark where events have occurred on a page, and provide tooltips and/or console.logs that describe the past event behavior. This widget, is built with a simple React frontend. It is intended to be droppable onto any webpage and allow you to track events of your choosing on elements of your choosing. Cookies are used for session-based persistence of tracking (and for nothing else). Also, the system is set up to store very basic event data to firebase for future reference.
 
@@ -56,4 +55,4 @@ The ability to generate simple elements on the page is built into the widget. In
 - Use of clean icons (toggle, settings, event-specific logos, etc.)
 - Styling to gracefully integrate with a given site.
 
-#### I know. Lots to do. Enjoy for now and please stay tuned for updates!
+#### I know. Lots to do. Please enjoy, suggest, fork, or star stay tuned for updates!
