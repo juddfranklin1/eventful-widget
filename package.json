@@ -4,7 +4,7 @@
   "description": "A widget for tracking events on a page.",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --reporter spec testSetup.js \"components/*.spec.js\"",
+    "test": "./node_modules/.bin/cypress run --spec cypress/integration/eventful/**/* --browser chrome",
     "start": "webpack-dev-server --port 9090"
   },
   "repository": {

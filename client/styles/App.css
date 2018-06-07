@@ -75,6 +75,8 @@
   border-bottom: 0;
 }
 .eventful-toggle-tab a {
+  position: relative;
+  z-index: 100000;
   color: white;
   text-decoration: none;
   transition: color 1s;

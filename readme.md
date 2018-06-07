@@ -4,11 +4,11 @@
 * npm install
 * npm start
 
-npm test
-(testing tbd) Strongly considering using cypress.io for testing.
+* npm test (runs cypress.io)
 
-backed by webpack
-data can be stored in Firebase if desired. More options for data storage is a future priority.
+* backed by webpack
+
+Data can be stored in Firebase if desired. More options for data storage is a future priority.
 
 ## A little widget that is intended to track events on a page.
 
