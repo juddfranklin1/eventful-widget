@@ -28,7 +28,7 @@
 
 
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
+import { HTMLEscape, wrap, unique } from '../../lib/display-helpers.js';
 
 // COMMENT BELOW to disable firebase
 import * as firebase from 'firebase';
@@ -43,7 +43,6 @@ import TrackingAdder from '../TrackingAdder/TrackingAdder.js';
 import Navbar from '../Navbar/Navbar.js';
 
 export default class ContentContainer extends Component {
-
     constructor(props) {
         super();
 
@@ -54,9 +53,11 @@ export default class ContentContainer extends Component {
             latestUpdate: 'No events tracked yet',
             selectedSelectors: [],
             clonedChildren: [],
-            logEvent: true,
+            logEvent: false,
             markEvent: true
         }
+
+        this.HTMLEscape = HTMLEscape;
     }
 
     // Configuration file is not in the repository, so create a file in the client folder called config.js with content like this:
@@ -89,15 +90,6 @@ export default class ContentContainer extends Component {
         return database;
     }
 
-    unique(list, x) {
-        if (x != "" && list.indexOf(x) === -1) {
-            list.push(x);
-        }
-        return list;
-    };
-
-    trim(x) { return x.trim(); };
-
     componentWillMount() {
         const that = this;
 
@@ -110,9 +102,10 @@ export default class ContentContainer extends Component {
         const ids = [].reduce.call(document.querySelectorAll('[id]'), function(acc, e) {
             return {type:'id', value: e.id};
         }, []);
-        
+
+        const trimWrap = wrap(String.prototype.trim);
         let classNames = [].reduce.call(document.querySelectorAll('[class]'), function(acc, e) {
-            return e.getAttribute('class').split(' ').map(that.trim).reduce(that.unique, acc);
+            return e.getAttribute('class').split(' ').map(trimWrap).reduce(unique, acc);
         }, []);
         classNames = classNames.map(function(ele){
             return { type: 'class', value: ele };
@@ -136,7 +129,7 @@ export default class ContentContainer extends Component {
             },
             []);
 
-        let uniqueElements = tagNames.reduce(that.unique,[]);
+        let uniqueElements = tagNames.reduce(unique,[]);
 
         uniqueElements = uniqueElements.map(function(ele){
             return { type: 'element', value: ele.toLowerCase() };
@@ -166,7 +159,7 @@ export default class ContentContainer extends Component {
         const toggleTooltip = function(e) {
             e.stopPropagation();
             const oldToolTip = document.querySelector('.tooltip');
-            const context = e.target.context;
+            const context = e.target.eventDataObject;
 
             if (oldToolTip !== null && oldToolTip) {// no lingering tooltips, please.
                 oldToolTip.classList.add('hide');
@@ -182,15 +175,16 @@ export default class ContentContainer extends Component {
                 const tooltip = document.createElement('span');
                 tooltip.classList.add('tooltip');
 
-                const eventDataPoints = Object.keys(context.eventData);
+                const eventDataKeys = Object.keys(context.eventData);
                 
-                const tooltipText = eventDataPoints.reduce(function(iter, curr, i){
-                    return curr === 'Event' ? iter + '<p><b>' + context.eventData[curr] + '</b></p>' : iter + '<p>' + curr + ': ' + context.eventData[curr] + '</p>';
+                const tooltipText = eventDataKeys.reduce(function(iter, curr, i) {
+                    var escapedData = that.HTMLEscape(context.eventData[curr]);
+                    return curr === 'Event' ? iter + '<p><b>' + escapedData + '</b></p>' : iter + '<p>' + curr + ': ' + escapedData + '</p>';
                 },'');
 
                 tooltip.innerHTML = tooltipText;
 
-                this.appendChild(tooltip);//Tooltip inserted into element being hovered
+                this.appendChild(tooltip);// Tooltip inserted into element being hovered
                 
                 const closeBtn = document.createElement('span');
                 closeBtn.classList.add('close-btn');
@@ -244,6 +238,7 @@ export default class ContentContainer extends Component {
                                 console.info('************* STORED EVENT DATA OBJECT ****************');
                                 console.info(context.eventData);
                             }
+                            eventMarker.eventDataObject = context;
                             eventMarker.addEventListener('click', toggleTooltip,{capture:true});
                         }
                         that.flag = !that.flag;
@@ -376,16 +371,6 @@ export default class ContentContainer extends Component {
             }
         });
     }
-
-    /**
-     * @name removeTracking
-     * 
-     * @param {String} eventName - name of event associated with tracker to remove
-     * @param {String} selector - selector associated with tracker to remove
-     * 
-     * @description - Intended to allow for quick removal of tracking.
-     * removes previously delegated events.
-     */
 
     changeTab(tab) {
         this.setState({

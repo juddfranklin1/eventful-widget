@@ -7,7 +7,6 @@
 */
 
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
 
@@ -33,7 +32,10 @@ export default class SelectorPicker extends Component {
   }
   
   updateValue = function (newValue) {
-    console.log(newValue);
+    
+    this.setState({
+
+    });
 
   }
   
@@ -56,13 +58,18 @@ export default class SelectorPicker extends Component {
 
     return (
       <div>
-        <label htmlFor={ label }><h4>Pick from existing page classes to track { this.props.eventName && this.props.eventName } events on.</h4>
+          <label htmlFor={ label }><h4>Pick from the following selectors to track { this.props.eventName && this.props.eventName } events on.</h4>
+          
           <Select
-            name={ label }
-            value={ this.state.selectValue }
-            onChange={ this.handleChange }
-            options={ selectorOptions }
-            id={ label }
+            name = { label }
+            value = { this.state.selectValue }
+            onChange = { this.handleChange }
+            options = { selectorOptions }
+            id = { label }
+            clearable = { false }
+            aria-describedby = { 'Choose a selector to track ' + this.props.eventName && this.props.eventName + " events on."}
+            aria-label = "Choose selector"
+            autoFocus = { true }
           />
         </label>
       </div>

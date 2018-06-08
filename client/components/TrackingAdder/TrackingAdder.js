@@ -1,7 +1,6 @@
 import React,{Component} from 'react';
-import ReactDOM from 'react-dom';
 
-
+import { selectorProcessor } from '../../lib/display-helpers.js';
 import Select from 'react-select';
 import SelectorPicker from '../SelectorPicker/SelectorPicker.js';
 
@@ -87,7 +86,54 @@ export default class TrackingAdder extends Component {
       ],
     }
   }
-  
+ 
+  /**
+   * @name delegator
+   * 
+   * @argument {Element} scope
+   * @argument {String} selector
+   * @argument {Funcion} countEvent
+   * 
+   * @description function to be called when delegating events to be tracked.
+   */
+
+  delegator(scope, selector, countEvent, remove=false){
+    const that = this;
+
+    return function(e) {
+      let failsFilter = true, // flag
+        el = e.target;
+
+      // Checking for matching elements based upon element attributes
+      var check = selectorProcessor(selector, el);
+
+      while (el !== scope && (failsFilter = check === -1) && (el = el.parentNode)); // tree walker
+
+      if (!failsFilter) {
+        if(!el.hasAttribute('eventful-tracked-' + e.type)){ // protect against duplicate event listener
+
+          scope.sel = selector;
+          if(remove) {
+            console.log(el);
+            el.removeEventListener(e.type, countEvent);
+            console.log(el['on' + e.type]);
+            el.removeAttribute('eventful-tracked-' + e.type);
+          } else {
+            el.addEventListener(e.type, countEvent, { capture: false, once: false, passive: true });
+            el.setAttribute('eventful-tracked-' + e.type,'true');
+          }
+          
+          if(!document.querySelector('[remove-eventful-tracked-' + e.type + ']')){
+            const removeEl = document.createElement('span');
+            removeEl.setAttribute('remove-eventful-tracked-' + e.type,'true')
+            removeEl.addEventListener('click', (e) => that.delegator(scope, selector, countEvent, true), { capture: false, once: false, passive: true });
+            document.body.appendChild(removeEl);
+          }
+        }
+      }
+    }
+  }
+
   /**
    * @name delegateEvent
    * 
@@ -98,73 +144,40 @@ export default class TrackingAdder extends Component {
    * Uses event delegation in order to make sure that future elements of the same selector get tracked as well.
    * 
    */
-  delegateEvent(eventType,newSelector) {
+  delegateEvent(eventType, newSelector) {
     const evt = eventType || 'click';
     const that = this;
     const targetSelectors = Array.of(newSelector) || this.props.selectedSelectors;
 
-    const delegationFunction = function(scope, selector, countEm){// Still trying to figure out how to remove the delegation of the events.
-      return function(e) {
-        
-        let failsFilter = true,
-          el = e.target;
-        
-        if (selector.indexOf('#') !== -1) {
-          var check = el.id.indexOf(selector.substring(1));
-        } else if (selector.indexOf('.') !== -1) {
-          var check = el.className.indexOf(selector.substring(1));
-        } else {
-          var check = el.nodeName.toLowerCase().indexOf(selector);
-        }
+    targetSelectors.map(function(selector) {
+      var body = document.getElementsByTagName('body')[0];
+      var selectorAttribute = 'tracking-' + evt;
+      body.addEventListener(evt, (that.delegator)(that, selector, that.countEvent.bind(that)),true);
 
-        while (el !== scope && (failsFilter = check === -1) && (el = el.parentNode));
-        if (!failsFilter) {
-          if(!el.hasAttribute('eventful-tracked-' + evt)){//protect against duplicate event listener
-            that.sel = selector;
-            el.addEventListener(evt, countEm, { capture: false, once: false, passive: true });
-            el.setAttribute('eventful-tracked-' + evt,'true');
-            
-            const removeEl = document.createElement('span');
-            removeEl.setAttribute('remove-eventful-tracked-' + evt,'true');
-            removeEl.addEventListener('click', function(e){
-              el.removeEventListener(evt, countEm);
-            
-              el.removeAttribute('eventful-tracked-' + evt,'true');
-              removeEl.parentElement.removeChild(removeEl);
+      selectorAttribute += selectorProcessor(selector);
 
-            }, { capture: false, once: false, passive: true });
-            document.body.appendChild(removeEl);
-          }
-        }
-      }
-    }
-
-    targetSelectors.map(function(selector)
-    {
-      document.getElementsByTagName('body')[0].addEventListener(evt, (delegationFunction)(that, selector, that.countEm.bind(that)),true);
+      body.setAttribute(selectorAttribute, true);
     });
   }
 
   /**
-   * @name delegateEvent
+   * @name removeTracking
    * 
-   * @param {Event} e - Event that triggered the call
-   * @param {String} [newSelector] - new selector to add to th list of targeted selectors.
+   * @param {String} eventName - name of event associated with tracker to remove
+   * @param {String} selector - selector associated with tracker to remove
    * 
-   * @description - The actual function that sets up an event to be tracked.
-   * Uses event delegation in order to make sure that future elements of the same selector get tracked as well.
-   * 
+   * @description - Intended to allow for quick removal of tracking.
+   * removes previously delegated events.
    */
+
   removeTracking(eventType, selector) {
     const that = this;
-
+    
     if(!eventType){
-        console.warn('removeEvent was called without an event type set to be removed');
-        return false;
+        throw new ReferenceError('removeEvent was called without an event type set to be removed');
     }
     if(!selector){
-        console.warn('removeEvent was called without a selector to remove an event from');
-        return false;
+        throw new ReferenceError('removeEvent was called without a selector to remove an event from');
     }
     
     const updatedSelectedSelectors = this.props.selectedSelectors.filter(function(val){
@@ -172,13 +185,14 @@ export default class TrackingAdder extends Component {
     });
 
     const removeButton = document.querySelector("span[remove-eventful-tracked-" + eventType + "]");
-    if(typeof removeButton !== null){
-      //removeButton.click();
+
+    if(typeof removeButton !== 'null'){
+      removeButton.click();
     }
 }
 
   /**
-   * @name countEm
+   * @name countEvent
    * 
    * @param {Event} event 
    * 
@@ -188,7 +202,7 @@ export default class TrackingAdder extends Component {
    * This could be a much more robust logging function.
    * 
    */
-  countEm(event) {
+  countEvent(event) {
     let element = event.target;
     let description = 'Last tracked event: '+ event.type + ' on ' + element.tagName.toLowerCase();
     if (typeof element.className === 'string') {
@@ -229,8 +243,8 @@ export default class TrackingAdder extends Component {
     
       this.setState({
     
-        selectedSelectors: currentlySelected
-    
+        selectedSelectors: currentlySelected,
+        chosenEvent: ''
       });
   
       (this.delegateEvent.bind(this, evt, toAdd))(this);
@@ -248,33 +262,45 @@ export default class TrackingAdder extends Component {
   }
 
   renderEventPicker() {
+    let currentlyTracking = this.props.selectedSelectors.length > 0 ? (
+      <section>
+        <h3>Currently Tracking</h3>
+        <ul>
+          { this.props.selectedSelectors.map((e, i)=>( <li key={ i }>{ e.selector } tracking { e.event } - { e.count } <a className="remove-tracking" onClick={ () => this.removeTracking(e.event, e.selector) }>x</a></li> )) }
+        </ul>
+      </section>
+    ) : '';
     if (this.state.chosenEvent === ''){
       // Add ability to focus on specific event categories depending upon element chosen.
       const eventOptions = this.state.eventOptions[0].events.map((e,i) =>( { value: e, label: e } ));
-
       return (
         <div className='choose-event add-tracking-wrapper'>
-          <h3>Pick an event to track.</h3>
+          { currentlyTracking }
+        
+          <label htmlFor="chooseEvent">
+            <h4>Pick an event to track.</h4>
           
-          <Select
-            name='chooseEvent'
-            value={ this.state.selectValue }
-            onChange={ this.handleChange.bind(this) }
-            options={ eventOptions }
-            id="chooseEvent"
-          />
+            <Select
+              name = 'chooseEvent'
+              value = { this.state.selectValue }
+              onChange = { this.handleChange.bind(this) }
+              options = { eventOptions }
+              id = "chooseEvent"
+              clearable = { false }
+              aria-describedby = { 'Choose an event to track' }
+              aria-label = "Choose event"
+              autoFocus = { true }
+
+            />
+          </label>
         </div>
       );
 
     } else {
       return (
         <div className='choose-class add-tracking-wrapper'>
-          <h3>Currently Tracking</h3>
-          <ul>
-            { this.props.selectedSelectors.map((e, i)=>( <li key={ i }>{ e.selector } tracking { e.event } - { e.count } <a className="remove-tracking" onClick={ () => this.removeTracking(e.event, e.selector) }>x</a></li> )) }
-          </ul>
-          <h3>Pick some classes to track events on.</h3>
-
+          { currentlyTracking }
+          
           <SelectorPicker
             selectedSelectors={ this.state.selectedSelectors }
             pageSelectors={ this.props.pageSelectors }
