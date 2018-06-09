@@ -3,6 +3,9 @@ import React,{Component} from 'react';
 import { selectorProcessor } from '../../lib/display-helpers.js';
 import Select from 'react-select';
 import SelectorPicker from '../SelectorPicker/SelectorPicker.js';
+import CurrentlyTrackedItem from '../CurrentlyTrackedItem/CurrentlyTrackedItem';
+
+import { SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION } from 'constants';
 
 /* The component where we will be able to track new elements or new events */
 
@@ -90,16 +93,25 @@ export default class TrackingAdder extends Component {
   /**
    * @name delegator
    * 
-   * @argument {Element} scope
-   * @argument {String} selector
-   * @argument {Funcion} countEvent
+   * @argument {Element} scope - the context in which to delegate
+   * @argument {String} selector - the selector in question
+   * @argument {Funcion} countEvent - the countEvent function
+   * @argument {String} [remove] - If this is a delegation removal, what do you want to remove?
    * 
-   * @description function to be called when delegating events to be tracked.
+   * @description function to be called when delegated events are fired.
    */
 
-  delegator(scope, selector, countEvent, remove=false){
+  delegator(scope, selector, countEvent, remove){
     const that = this;
-
+    if(remove) {
+      const elements = document.querySelectorAll(selector);
+      for(var i = 0; i < elements.length; i++){
+        elements[i].removeAttribute('eventful-tracked-' + remove);
+        elements[i].setAttribute('removed-eventful-tracked-' + remove, true);
+      }
+      return;
+    }
+    
     return function(e) {
       let failsFilter = true, // flag
         el = e.target;
@@ -110,25 +122,13 @@ export default class TrackingAdder extends Component {
       while (el !== scope && (failsFilter = check === -1) && (el = el.parentNode)); // tree walker
 
       if (!failsFilter) {
+        if(el.hasAttribute('removed-eventful-tracked-' + e.type)) return;
         if(!el.hasAttribute('eventful-tracked-' + e.type)){ // protect against duplicate event listener
 
           scope.sel = selector;
-          if(remove) {
-            console.log(el);
-            el.removeEventListener(e.type, countEvent);
-            console.log(el['on' + e.type]);
-            el.removeAttribute('eventful-tracked-' + e.type);
-          } else {
-            el.addEventListener(e.type, countEvent, { capture: false, once: false, passive: true });
-            el.setAttribute('eventful-tracked-' + e.type,'true');
-          }
-          
-          if(!document.querySelector('[remove-eventful-tracked-' + e.type + ']')){
-            const removeEl = document.createElement('span');
-            removeEl.setAttribute('remove-eventful-tracked-' + e.type,'true')
-            removeEl.addEventListener('click', (e) => that.delegator(scope, selector, countEvent, true), { capture: false, once: false, passive: true });
-            document.body.appendChild(removeEl);
-          }
+
+          el.addEventListener(e.type, countEvent, { capture: false, once: false, passive: true });
+          el.setAttribute('eventful-tracked-' + e.type,'true');
         }
       }
     }
@@ -151,11 +151,10 @@ export default class TrackingAdder extends Component {
 
     targetSelectors.map(function(selector) {
       var body = document.getElementsByTagName('body')[0];
-      var selectorAttribute = 'tracking-' + evt;
       body.addEventListener(evt, (that.delegator)(that, selector, that.countEvent.bind(that)),true);
-
+      
+      var selectorAttribute = 'tracking-' + evt;
       selectorAttribute += selectorProcessor(selector);
-
       body.setAttribute(selectorAttribute, true);
     });
   }
@@ -163,6 +162,7 @@ export default class TrackingAdder extends Component {
   /**
    * @name removeTracking
    * 
+   * @param {Element} removalLink - The actual link clicked
    * @param {String} eventName - name of event associated with tracker to remove
    * @param {String} selector - selector associated with tracker to remove
    * 
@@ -170,7 +170,7 @@ export default class TrackingAdder extends Component {
    * removes previously delegated events.
    */
 
-  removeTracking(eventType, selector) {
+  removeTracking(removalLink, eventType, selector) {
     const that = this;
     
     if(!eventType){
@@ -179,17 +179,24 @@ export default class TrackingAdder extends Component {
     if(!selector){
         throw new ReferenceError('removeEvent was called without a selector to remove an event from');
     }
-    
+
+
+    // This whole chunk should become part of the react logic.
+    // The currently tracking section can be a component that only renders if there are tracked elements. the list items can be stateless components, too.
+
+    const listItem = removalLink.parentNode;
+    const list = listItem.parentNode;
+    list.removeChild(listItem);
+
+    that.delegator(that, selector, that.countEvent.bind(that), eventType);
+
     const updatedSelectedSelectors = this.props.selectedSelectors.filter(function(val){
         return !(val.selector === selector && val.event === eventType);
     });
 
-    const removeButton = document.querySelector("span[remove-eventful-tracked-" + eventType + "]");
+    
 
-    if(typeof removeButton !== 'null'){
-      removeButton.click();
-    }
-}
+  }
 
   /**
    * @name countEvent
@@ -204,6 +211,7 @@ export default class TrackingAdder extends Component {
    */
   countEvent(event) {
     let element = event.target;
+    if(element.hasAttribute('removed-eventful-tracked-' + event.type)) return;
     let description = 'Last tracked event: '+ event.type + ' on ' + element.tagName.toLowerCase();
     if (typeof element.className === 'string') {
       description += '.' + element.className + '.';// This is not needed. Maybe a more robust identifier? element.outerHTML?
@@ -261,15 +269,16 @@ export default class TrackingAdder extends Component {
     });
   }
 
-  renderEventPicker() {
+  renderEventPicker() {//Currently Tracking section should be abstracted into a component for use everywhere.
     let currentlyTracking = this.props.selectedSelectors.length > 0 ? (
-      <section>
+      <section className={ 'currently-tracking' }>
         <h3>Currently Tracking</h3>
         <ul>
-          { this.props.selectedSelectors.map((e, i)=>( <li key={ i }>{ e.selector } tracking { e.event } - { e.count } <a className="remove-tracking" onClick={ () => this.removeTracking(e.event, e.selector) }>x</a></li> )) }
+          { this.props.selectedSelectors.map((e, i)=>( <CurrentlyTrackedItem key={ i } e={ e } event={ event } removeTracking={ this.removeTracking.bind(this) } /> )) }
         </ul>
       </section>
     ) : '';
+
     if (this.state.chosenEvent === ''){
       // Add ability to focus on specific event categories depending upon element chosen.
       const eventOptions = this.state.eventOptions[0].events.map((e,i) =>( { value: e, label: e } ));

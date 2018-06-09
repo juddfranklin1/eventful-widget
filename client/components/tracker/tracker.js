@@ -1,9 +1,9 @@
-import React,{Component} from 'react';
-import ReactDOM from 'react-dom';
+import React from 'react';
+
 
 import Counter from '../Counter/Counter.js';
 
-const Tracker = function(props){
+const Tracker = function(props) {
 
   return(
       <div className='tracker-wrapper section'>

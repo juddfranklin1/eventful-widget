@@ -273,3 +273,7 @@ button[content="Test"] {
 .test-2:before{
   content: 'test-2';
 }
+.currently-tracking {
+  border: 1px solid green;
+  padding: 0 1rem;
+}
