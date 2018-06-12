@@ -281,6 +281,8 @@ export default class TrackingAdder extends Component {
 
     if (this.state.chosenEvent === ''){
       // Add ability to focus on specific event categories depending upon element chosen.
+      // Need to make element selection first.
+      // Issue #13 - https://github.com/juddfranklin1/eventful-widget/issues/13
       const eventOptions = this.state.eventOptions[0].events.map((e,i) =>( { value: e, label: e } ));
       return (
         <div className='choose-event add-tracking-wrapper'>
@@ -311,7 +313,7 @@ export default class TrackingAdder extends Component {
           { currentlyTracking }
           
           <SelectorPicker
-            selectedSelectors={ this.state.selectedSelectors }
+            selectedSelectors={ this.props.selectedSelectors }
             pageSelectors={ this.props.pageSelectors }
             eventName={ this.state.chosenEvent }
             selectSelector={ (sel, evt) => this.onSelectSelector(sel, this.state.chosenEvent) }

@@ -33,13 +33,20 @@ export default class Options extends Component {
   }
 
   render(){
+
+    // Each instance of Test Generator being clicked needs to also update the pageSelectors on the ContentContainer state.
     function TestElements(isTesting, onAddElement){//This just gives us some generated content to work with as needed.
       if(isTesting){
         return (
           <div id="test-elements" key="testElements-1">
             <h3>Add an element to test the tracking functionality</h3>
-            <TestGenerator elementName='test-1' />
-            <TestGenerator elementName='test-2' />
+            <TestGenerator elementTag='div' elementId='' elementClass='test-1' />
+            <TestGenerator elementTag='div' elementId='' elementClass='test-2' />
+            <TestGenerator elementTag='input' elementType='text' elementClass='test-3' />
+            <TestGenerator elementTag='input' elementType='checkbox' elementClass='test-3' />
+            <TestGenerator elementTag='button' elementContent='click' />
+            <TestGenerator elementTag='video' />
+            <TestGenerator elementTag='audio' />
           </div>
         );
       }

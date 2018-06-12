@@ -277,3 +277,14 @@ button[content="Test"] {
   border: 1px solid green;
   padding: 0 1rem;
 }
+
+video {
+  background: green;
+  height: 100px;
+  width: 300px;
+  position: relative;
+}
+input[type="checkbox"] {
+  padding: 1rem;
+  margin: 40px;
+}
