@@ -20,3 +20,14 @@ export const VisibilityFilters = {
   SHOW_SELECTED: 'SHOW_SELECTED',
   SHOW_NEW: 'SHOW_NEW'
 };
+
+export const setActiveTab = filter => ({
+  type: 'SET_ACTIVE_TAB',
+  filter
+});
+
+export const TabFilters = {
+  TAB_OVERVIEW: 'TAB_OVERVIEW',
+  TAB_MANAGE: 'TAB_MANAGE',
+  TAB_OPTIONS: 'TAB_OPTIONS'
+};

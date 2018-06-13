@@ -57,6 +57,7 @@
     "postcss-simple-vars": "^4.1.0",
     "react-addons-test-utils": "^15.6.2",
     "react-icons": "^2.2.7",
+    "redux-thunk": "^2.3.0",
     "sinon": "^5.0.10",
     "style-loader": "^0.13.2"
   }
