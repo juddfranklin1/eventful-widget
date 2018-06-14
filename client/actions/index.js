@@ -1,8 +1,15 @@
 let nextSelectorId = 0
 export const addSelector = text => ({
   type: 'ADD_SELECTOR',
-  id: nextSelectorId++,
-  text
+  payload: {
+    id: nextSelectorId++,
+    text: text
+  }
+});
+
+export const setSelectors = arr => ({
+  type: 'SET_SELECTORS',
+  payload: arr
 });
 
 export const setVisibilityFilter = filter => ({

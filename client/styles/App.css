@@ -325,3 +325,7 @@ input[type="checkbox"] {
   margin: .5rem;
   font-size: .8rem;
 }
+
+.eventful-widget-highlight {
+  border: 1px dashed red;
+}

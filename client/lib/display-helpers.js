@@ -52,7 +52,7 @@ export const wrap = (func) => {
 }
 
 /**
- * @name selectorToString
+ * @name selectorProcessor
  * 
  * helper for managing selector strings.
  * Treats them in a boolean way if an element is passed in;
@@ -72,4 +72,25 @@ export const selectorProcessor = function(string, el){
     }
 
     return selectorAttribute;
+}
+
+/**
+ * @name selectorObjectToString
+ * 
+ * helper for converting Selectors in Store into option strings.
+ * Used for mapping over the Selectors state array
+ * 
+ * @param {Object} obj - a single selector object
+ */
+export const selectorObjectToString = function(obj){
+    let selectorString = '';
+    if (obj.type === 'class' && obj.value.indexOf('.') === -1) {
+        selectorString = '.' + obj.value;
+    } else if (obj.type === 'id' && obj.value.indexOf('#') === -1) {
+        selectorString = '#' + obj.value;
+    } else {
+        selectorString = obj.value.toLowerCase();
+    }
+
+    return selectorString;
 }
