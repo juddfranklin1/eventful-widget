@@ -1,5 +1,5 @@
 /// <reference types="Cypress" />
-// import WidgetToggle from '../../client/components/WidgetToggle/WidgetToggle.js';
+// import WidgetToggle from '../../client/components/WidgetToggle';
 // import React from 'react';
 // import { mount } from 'cypress-react-unit-test';
 

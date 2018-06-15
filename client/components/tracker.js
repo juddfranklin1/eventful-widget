@@ -1,7 +1,7 @@
 import React from 'react';
 
 
-import Counter from '../Counter/Counter.js';
+import Counter from './Counter.js';
 
 const Tracker = function(props) {
 

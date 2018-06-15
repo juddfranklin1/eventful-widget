@@ -7,6 +7,9 @@
 */
 
 import React, { Component } from 'react';
+
+import { selectorObjectToString } from '../lib/display-helpers';
+
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
 
@@ -42,15 +45,9 @@ export default class SelectorPicker extends Component {
   render(){
 
     const selectorOptions = this.props.pageSelectors.map(function(e,i){
-        if (e.type === 'class' && e.value.indexOf('.') === -1) {
-            e.value = '.' + e.value;
-        } else if (e.type === 'id' && e.value.indexOf('#') === -1) {
-            e.value = '#' + e.value;
-        } else {
-          e.value = e.value.toLowerCase();
-        }
+      var value = selectorObjectToString(e);
       return {
-        value: e.value, label: e.value
+        value: value, label: value
       }
     });
 

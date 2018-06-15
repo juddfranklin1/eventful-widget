@@ -52,7 +52,7 @@ export const wrap = (func) => {
 }
 
 /**
- * @name selectorToString
+ * @name selectorProcessor
  * 
  * helper for managing selector strings.
  * Treats them in a boolean way if an element is passed in;
@@ -62,6 +62,7 @@ export const wrap = (func) => {
  * @param {Element} el - element to be converted 
  */
 export const selectorProcessor = function(string, el){
+    if (!!!string) return;
     let selectorAttribute = el ? 0 : '';
     if (string.indexOf('#') !== -1){
         selectorAttribute += el ? el.id.indexOf(string.substring(1)) : '-id-' + string.substring(1);
@@ -70,6 +71,57 @@ export const selectorProcessor = function(string, el){
     } else {
         selectorAttribute += el ? el.nodeName.toLowerCase().indexOf(string) : '-element-' + string;
     }
-
     return selectorAttribute;
+}
+
+/**
+ * @name selectorObjectToString
+ * 
+ * helper for converting Selectors in Store into option strings.
+ * Used for mapping over the Selectors state array
+ * 
+ * @param {Object} obj - a single selector object
+ */
+export const selectorObjectToString = function(obj){
+    let selectorString = '';
+    if (obj.type === 'class' && obj.value.indexOf('.') === -1) {
+        selectorString = '.' + obj.value;
+    } else if (obj.type === 'id' && obj.value.indexOf('#') === -1) {
+        selectorString = '#' + obj.value;
+    } else {
+        selectorString = obj.value.toLowerCase();
+    }
+
+    return selectorString;
+}
+
+
+/**
+ * @name filterByParentElement
+ * 
+ * Function to pass to a filter call that looks at an elements ancestors to see if it is contained in a parent.
+ * It then 
+ * 
+ * @param {NodeList} els - the collection of elements to search
+ * @param {Node} parent - the parent element in question
+ * @param {boolean} include - whether to include or exclude elements contained in the parent
+ */
+export const filterByParentElement = function(els, parent, include = false){
+    
+    return els.filter(function(el){
+        var isInParent = this.hasParent(el, parent);
+        return include ? isInParent : !isInParent;
+    });
+}
+
+export const hasParent = function(el, parent){
+    let isInParent = false;
+
+    while (el !== parent && (el = el.parentElement)) {
+        if(el === parent) {
+            isInParent = true;
+            break;
+        }
+    }
+    return isInParent;
 }

@@ -1,15 +1,15 @@
 import React,{Component} from 'react';
 
-import { selectorProcessor } from '../../lib/display-helpers.js';
+import { selectorProcessor, hasParent } from '../lib/display-helpers.js';
 import Select from 'react-select';
-import SelectorPicker from '../SelectorPicker/SelectorPicker.js';
-import CurrentlyTrackedItem from '../CurrentlyTrackedItem/CurrentlyTrackedItem';
+import SelectorPicker from './SelectorPicker';
+import CurrentlyTrackedItem from './CurrentlyTrackedItem';
 
 import { SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION } from 'constants';
 
 /* The component where we will be able to track new elements or new events */
 
-export default class TrackingAdder extends Component {
+export default class TrackingChanger extends Component {
   constructor(props) {
     super();
     this.state = {
@@ -89,56 +89,84 @@ export default class TrackingAdder extends Component {
       ],
     }
   }
- 
+
+  body = document.getElementsByTagName('body')[0];
+
+  componentDidMount(){
+    const that = this;
+    that.state.eventOptions.map(function(el){
+      const scope = that;
+      el.events.map(function(event){
+        scope.body.addEventListener(event, that.delegator);
+      });
+    });
+  }
+
   /**
    * @name delegator
    * 
-   * @argument {Element} scope - the context in which to delegate
    * @argument {String} selector - the selector in question
+   * @argument {String} attrString - the attribute string to add to the body tag.
    * @argument {Funcion} countEvent - the countEvent function
    * @argument {String} [remove] - If this is a delegation removal, what do you want to remove?
    * 
    * @description function to be called when delegated events are fired.
    */
 
-  delegator(scope, selector, countEvent, remove){
-    const that = this;
-    if(remove) {
-      const elements = document.querySelectorAll(selector);
-      for(var i = 0; i < elements.length; i++){
-        elements[i].removeAttribute('eventful-tracked-' + remove);
-        elements[i].setAttribute('removed-eventful-tracked-' + remove, true);
-      }
-      return;
+  delegator(e){
+    if(hasParent(e.target, document.getElementById('eventful-root'))) return;
+    const body = document.getElementsByTagName('body')[0];
+
+    let eventfulAtts = [];
+
+    for (var i = 0, atts = body.attributes, n = atts.length; i < n; i++) {
+      if(atts[i].name.indexOf('eventful-tracking') !== -1) eventfulAtts.push(atts[i].name);
     }
-    
-    return function(e) {
-      let failsFilter = true, // flag
-        el = e.target;
+  
+    if(eventfulAtts.length === 0) return;
 
-      // Checking for matching elements based upon element attributes
-      var check = selectorProcessor(selector, el);
+    // construct selectors from the attribute string
 
-      while (el !== scope && (failsFilter = check === -1) && (el = el.parentNode)); // tree walker
+    eventfulAtts = eventfulAtts.map(el => {
+      el = el.split('-');
+      const selectorInfo = {};
+      selectorInfo.event = el[2];
+      if (el.indexOf('class') !== -1){
+        let selector = el.slice(el.indexOf('class') + 1);
+        selectorInfo.value = selector.join('-');
+        selectorInfo.type = 'class';
+      } else if (el.indexOf('id') !== -1){
+        let selector = el.slice(el.indexOf('id') + 1);
+        selectorInfo.value = selector.join('-');
+        selectorInfo.type = 'id';
+      } else {
+        selectorInfo.value = selector[selector.length - 1];
+        selectorInfo.type = 'id';
+      }
+      return selectorInfo;
+    });
 
-      if (!failsFilter) {
-        if(el.hasAttribute('removed-eventful-tracked-' + e.type)) return;
-        if(!el.hasAttribute('eventful-tracked-' + e.type)){ // protect against duplicate event listener
-
-          scope.sel = selector;
-
-          el.addEventListener(e.type, countEvent, { capture: false, once: false, passive: true });
-          el.setAttribute('eventful-tracked-' + e.type,'true');
+    // run event tracking when e.target.classList.has(selector)/e.target.tagName.toLowerCase() === selector / e.target.id === selector
+    eventfulAtts.map(
+      el => {
+        if(el.event === e.type){
+          if(el.type === 'id') {
+            if (e.target.id === el.value) console.log(e);
+          } else if(el.type === 'class'){
+            if (e.target.classList.has(el.value)) console.log(e);
+          } else{
+            if(e.target.tagName.toLowerCase() === el.value) console.log(e);
+          }
         }
       }
-    }
+    );
   }
 
   /**
    * @name delegateEvent
    * 
    * @param {String} eventType - Event type to be delegated
-   * @param {String} [newSelector] - new selector to add to th list of targeted selectors.
+   * @param {String} newSelector - new selector to add to th list of targeted selectors.
    * 
    * @description - The actual function that sets up an event to be tracked.
    * Uses event delegation in order to make sure that future elements of the same selector get tracked as well.
@@ -146,17 +174,11 @@ export default class TrackingAdder extends Component {
    */
   delegateEvent(eventType, newSelector) {
     const evt = eventType || 'click';
-    const that = this;
-    const targetSelectors = Array.of(newSelector) || this.props.selectedSelectors;
+    var attrString = 'eventful-tracking-' + evt + selectorProcessor(newSelector);
+    if(this.body.hasAttribute(attrString)) return;
 
-    targetSelectors.map(function(selector) {
-      var body = document.getElementsByTagName('body')[0];
-      body.addEventListener(evt, (that.delegator)(that, selector, that.countEvent.bind(that)),true);
-      
-      var selectorAttribute = 'tracking-' + evt;
-      selectorAttribute += selectorProcessor(selector);
-      body.setAttribute(selectorAttribute, true);
-    });
+    const that = this;
+    this.body.addEventListener(evt, (that.delegator)(that, newSelector, attrString, that.countEvent.bind(that)),true);
   }
 
   /**
@@ -169,33 +191,25 @@ export default class TrackingAdder extends Component {
    * @description - Intended to allow for quick removal of tracking.
    * removes previously delegated events.
    */
-
-  removeTracking(removalLink, eventType, selector) {
-    const that = this;
-    
-    if(!eventType){
+  removeTracking(eventType, selector) {
+    if(!!!eventType){
         throw new ReferenceError('removeEvent was called without an event type set to be removed');
     }
-    if(!selector){
+    if(!!!selector){
         throw new ReferenceError('removeEvent was called without a selector to remove an event from');
     }
-
-
-    // This whole chunk should become part of the react logic.
-    // The currently tracking section can be a component that only renders if there are tracked elements. the list items can be stateless components, too.
-
-    const listItem = removalLink.parentNode;
-    const list = listItem.parentNode;
-    list.removeChild(listItem);
-
-    that.delegator(that, selector, that.countEvent.bind(that), eventType);
-
-    const updatedSelectedSelectors = this.props.selectedSelectors.filter(function(val){
-        return !(val.selector === selector && val.event === eventType);
-    });
-
     
+    // Dump the tracker if it matches both selector and event
+    const newSelectedSelectors = this.props.selectedSelectors.filter( el => el.selector !== selector || el.event !== eventType );
 
+    var selectorAttribute = 'eventful-tracking-' + eventType;
+    selectorAttribute += selectorProcessor(selector);
+
+    this.body.removeAttribute(selectorAttribute);
+
+    this.props.changeSelectedSelectors(newSelectedSelectors);
+    
+    return newSelectedSelectors;
   }
 
   /**
@@ -209,14 +223,10 @@ export default class TrackingAdder extends Component {
    * This could be a much more robust logging function.
    * 
    */
-  countEvent(event) {
-    let element = event.target;
-    if(element.hasAttribute('removed-eventful-tracked-' + event.type)) return;
-    let description = 'Last tracked event: '+ event.type + ' on ' + element.tagName.toLowerCase();
-    if (typeof element.className === 'string') {
-      description += '.' + element.className + '.';// This is not needed. Maybe a more robust identifier? element.outerHTML?
-    }
-    this.props.updateCounter(description, event, element, this.sel);
+  countEvent(event, selector) {
+    const that = this;
+    let description = 'Last tracked event: '+ event.type + ' on ' + selector + '.';// This is not needed. Maybe a more robust identifier? element.outerHTML?
+    that.props.updateCounter(description, event, event.target, that.sel);
     return true;
   };
 
@@ -230,33 +240,27 @@ export default class TrackingAdder extends Component {
    * containing the most recently selected selector matched with the event selected.
    * 
    */
-
   onSelectSelector(toAdd, evt) {
     let currentlySelected = this.props.selectedSelectors;
     
     if(currentlySelected.indexOf(toAdd) === -1){
-      /**
-       *  This is where we construct the actual tracking data.
-       *  The more carefully we construct this object, the more robust the analytics can be.
-       *  Currently, it gives us:
-       *   - event type,
-       *   - associated selector (what was chosen in the dropdown)
-       *   - event count at 0
-       *   
-       *  Could also have an "events" property which could be an array of events tracked data.
-       *  Could have event category
-       */
 
-      currentlySelected[currentlySelected.length] = { selector: toAdd, event: evt, count: 0 };
+      const now = new Date().toDateString();
+
+      currentlySelected[currentlySelected.length] = {
+        selector: toAdd,
+        event: evt,
+        count: 0,
+        started: now
+      };
     
       this.setState({
-    
         selectedSelectors: currentlySelected,
         chosenEvent: ''
       });
   
-      (this.delegateEvent.bind(this, evt, toAdd))(this);
-
+      var attrString = 'eventful-tracking-' + evt + selectorProcessor(toAdd);
+      this.body.setAttribute(attrString, true);
     }
 
   }

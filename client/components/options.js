@@ -5,7 +5,7 @@ import { Cookies } from 'react-cookie';
 
 import { CSSTransitionGroup } from 'react-transition-group' // ES6
 
-import TestGenerator from '../TestGenerator/TestGenerator.js';
+import TestGenerator from './TestGenerator.js';
 
 export default class Options extends Component {
   constructor(props){

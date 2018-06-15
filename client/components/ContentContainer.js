@@ -28,19 +28,13 @@
 
 
 import React, { Component } from 'react';
-import { HTMLEscape, wrap, unique } from '../../lib/display-helpers.js';
+import { HTMLEscape, wrap, unique } from '../lib/display-helpers.js';
 
-// COMMENT BELOW to disable firebase
-import * as firebase from 'firebase';
-import 'firebase/database';
-import 'firebase/storage';
-import config from '../config';
-// COMMENT ABOVE to disable firebase
-
-import Options from '../Options/Options.js';
-import Tracker from '../Tracker/Tracker.js';
-import TrackingAdder from '../TrackingAdder/TrackingAdder.js';
-import Navbar from '../Navbar/Navbar.js';
+import Options from './Options.js';
+import Tracker from './Tracker.js';
+import TrackingChanger from './TrackingChanger.js';
+import Navbar from './Navbar.js';
+import { configure } from '../lib/database-helpers';
 
 export default class ContentContainer extends Component {
     constructor(props) {
@@ -54,40 +48,118 @@ export default class ContentContainer extends Component {
             selectedSelectors: [],
             clonedChildren: [],
             logEvent: false,
-            markEvent: true
+            markEvent: true,
+            database: 'FIREBASE'
         }
 
         this.HTMLEscape = HTMLEscape;
     }
 
-    // Configuration file is not in the repository, so create a file in the client folder called config.js with content like this:
-    /**
-     *  export default {
-     *    apiKey: API_KEY_HERE,
-     *    authDomain: AUTH_DOMAIN_HERE,
-     *    databaseURL: DATABASE_URI_HERE,
-     *    projectId: PROJECT_ID_HERE,
-     *    storageBucket: "",
-     *    messagingSenderId: SENDER_ID_HERE
-     *  };
-     *  
-     *  The better next step is to have a "save to database" option on the front end and then use that to let user choose datastore type, add credentials, and store them locally.
-     *  https://github.com/juddfranklin1/eventful-widget/issues/6
-    */
-
     flag = false;
 
-    configure(configType) {// Prepared for abstraction of storage, but currently only handles firebase
-        let database = false;
+    /**
+    * @function getEvents
+    * 
+    * @description  - wrapper function to get and process events from firebase
+    * 
+    * call the firebase datastore for events
+    * 
+    * Will need an optional param for specifying a narrower search.
+    * 
+    * Could be abstracted to allow for an API for choosing your own callback behavior.
+    * 
+    */
 
-        if (configType === 'FIREBASE' && firebase){
-            firebase.initializeApp(config);
+    getEvents(that, database) {
+        
+        if(database){ // Currently does nothing if not connected to database. Should also check for local storage option and load from there.
+            if(this.state.database === 'FIREBASE'){
+                database.ref('events').on('value', function(results) {
 
-            database = firebase.database();
+                    //handle results here.
 
+                    /**
+                     * create an object that has each event in it
+                     * return that object
+                     * The object should have a method that can generate a tooltip on demand for any given event within that object
+                     */
+
+                    const allEvents = results.val();
+                    const eventData = [];
+                    if(!that.flag){
+                        for (var item in allEvents) { //loop through the events and restructure the data
+                            let context = {
+                                event: allEvents[item].event,
+                                eventData: allEvents[item].eventData,
+                                eventId: item
+                            };
+    
+                            //generate an event marker
+                            const eventMarker = that.createEventMarker(context, context.eventId);
+    
+                            if (that.state.logEvent) {
+                                console.info('************* STORED EVENT DATA OBJECT ****************');
+                                console.info(context.eventData);
+                            }
+                            eventMarker.eventDataObject = context;
+                            eventMarker.addEventListener('click', that.toggleTooltip,{capture:true});
+                        }
+                        that.flag = !that.flag;
+                    }
+                });
+            }
+        }
+    }
+
+    /**
+     * @name toggleTooltip
+     * @function
+     * @param {Event} e - the event associated with the data.
+     * 
+     * @description create a tooltip to house the event data and display it; or remove it.
+     * 
+     * This function should take an x and y coord, as well as the event data.
+     * 
+     */
+    
+    toggleTooltip = function(e) {
+        e.stopPropagation();
+        const oldToolTip = document.querySelector('.tooltip');
+        const context = e.target.eventDataObject;
+
+        if (oldToolTip !== null && oldToolTip) {// no lingering tooltips, please.
+            oldToolTip.classList.add('hide');
+            oldToolTip.addEventListener("transitionend", function(e) {
+                oldToolTip.parentElement.removeChild(oldToolTip);
+            }, false);
         }
 
-        return database;
+        if (e.target.classList.contains('close-btn')){
+            
+            return false;
+        } else {
+            const tooltip = document.createElement('span');
+            tooltip.classList.add('tooltip');
+
+            const eventDataKeys = Object.keys(context.eventData);
+            
+            const tooltipText = eventDataKeys.reduce(function(iter, curr, i) {
+                var escapedData = that.HTMLEscape(context.eventData[curr]);
+                return curr === 'Event' ? iter + '<p><b>' + escapedData + '</b></p>' : iter + '<p>' + curr + ': ' + escapedData + '</p>';
+            },'');
+
+            tooltip.innerHTML = tooltipText;
+
+            this.appendChild(tooltip);// Tooltip inserted into element being hovered
+            
+            const closeBtn = document.createElement('span');
+            closeBtn.classList.add('close-btn');
+            tooltip.appendChild(closeBtn);
+
+            tooltip.parentElement.removeEventListener('click', toggleTooltip);
+            tooltip.classList.add('show');
+
+        }
     }
 
     componentWillMount() {
@@ -141,114 +213,9 @@ export default class ContentContainer extends Component {
             pageSelectors: selectors
         });
 
-        if(!!!config) var config = false;
-        if(!!!firebase) var firebase = false;
+        const database = configure(this.state.database);
 
-        const database = this.configure('FIREBASE',config);
-
-        /**
-         * @name toggleTooltip
-         * @function
-         * @param {Event} e - the event associated with the data.
-         * 
-         * @description create a tooltip to house the event data and display it; or remove it.
-         * 
-         * This function should take an x and y coord, as well as the event data.
-         * 
-         */
-        const toggleTooltip = function(e) {
-            e.stopPropagation();
-            const oldToolTip = document.querySelector('.tooltip');
-            const context = e.target.eventDataObject;
-
-            if (oldToolTip !== null && oldToolTip) {// no lingering tooltips, please.
-                oldToolTip.classList.add('hide');
-                oldToolTip.addEventListener("transitionend", function(e) {
-                    oldToolTip.parentElement.removeChild(oldToolTip);
-                }, false);
-            }
-
-            if (e.target.classList.contains('close-btn')){
-                
-                return false;
-            } else {
-                const tooltip = document.createElement('span');
-                tooltip.classList.add('tooltip');
-
-                const eventDataKeys = Object.keys(context.eventData);
-                
-                const tooltipText = eventDataKeys.reduce(function(iter, curr, i) {
-                    var escapedData = that.HTMLEscape(context.eventData[curr]);
-                    return curr === 'Event' ? iter + '<p><b>' + escapedData + '</b></p>' : iter + '<p>' + curr + ': ' + escapedData + '</p>';
-                },'');
-
-                tooltip.innerHTML = tooltipText;
-
-                this.appendChild(tooltip);// Tooltip inserted into element being hovered
-                
-                const closeBtn = document.createElement('span');
-                closeBtn.classList.add('close-btn');
-                tooltip.appendChild(closeBtn);
-
-                tooltip.parentElement.removeEventListener('click', toggleTooltip);
-                tooltip.classList.add('show');
-
-            }
-        }
-
-        /**
-         * @function getEvents
-         * 
-         * @description  - wrapper function to get and process events from firebase
-         * 
-         * call the firebase datastore for events
-         * 
-         * Will need an optional param for specifying a narrower search.
-         * 
-         * Could be abstracted to allow for an API for choosing your own callback behavior.
-         * 
-         */
-        const getEvents = function(that) {
-            
-            if(database){ // Currently does nothing if not connected to database. Should also check for local storage option and load from there.
-                database.ref('events').on('value', function(results) {
-
-                    //handle results here.
-
-                    /**
-                     * create an object that has each event in it
-                     * return that object
-                     * The object should have a method that can generate a tooltip on demand for any given event within that object
-                     */
-
-                    const allEvents = results.val();
-                    const eventData = [];
-                    if(!that.flag){
-                        for (var item in allEvents) { //loop through the events and restructure the data
-                            let context = {
-                                event: allEvents[item].event,
-                                eventData: allEvents[item].eventData,
-                                eventId: item
-                            };
-    
-                            //generate an event marker
-                            const eventMarker = that.createEventMarker(context, context.eventId);
-    
-                            if (that.state.logEvent) {
-                                console.info('************* STORED EVENT DATA OBJECT ****************');
-                                console.info(context.eventData);
-                            }
-                            eventMarker.eventDataObject = context;
-                            eventMarker.addEventListener('click', toggleTooltip,{capture:true});
-                        }
-                        that.flag = !that.flag;
-                    }
-
-                });
-            }
-        }
-
-        getEvents(that);
+        this.getEvents(that, database);
 
         return;
 
@@ -367,7 +334,8 @@ export default class ContentContainer extends Component {
         eventsRef.remove(function(){
             let markers = document.querySelectorAll('.event-marker');
             for(var i = 0; i < markers.length; i++) {
-                markers[i].parentNode.removeChild(markers[i]);
+                var markerParent = markers[i].parentNode;
+                if(markerParent) markerParent.removeChild(markers[i]);
             }
         });
     }
@@ -384,7 +352,13 @@ export default class ContentContainer extends Component {
             logEvent: doLog,
         });
         return;
+    }
 
+    changeSelectedSelectors(newSelectors){
+        this.setState({
+            selectedSelectors: newSelectors
+        });
+        return;
     }
 
     render() {
@@ -393,11 +367,12 @@ export default class ContentContainer extends Component {
 
         if (this.state.activeTab === "add") {
 
-            activeTabContent = <TrackingAdder
+            activeTabContent = <TrackingChanger
             pageSelectors = { this.state.pageSelectors }
             pageIds = { this.state.pageIds }
             pageTagNames = { this.state.pageTagNames }
             selectedSelectors = { this.state.selectedSelectors }
+            changeSelectedSelectors = { this.changeSelectedSelectors.bind(this) }
             updateCounter = { this.updateCounter.bind(this) }
             logEvent = { this.state.logEvent }
             />;

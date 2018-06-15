@@ -7,8 +7,8 @@ import ReactDOM from 'react-dom';
 import { instanceOf } from 'prop-types';
 import { Cookies } from 'react-cookie';
 
-import WidgetToggle from './WidgetToggle/WidgetToggle.js';
-import ContentContainer from './ContentContainer/ContentContainer.js';
+import WidgetToggle from './WidgetToggle';
+import ContentContainer from './ContentContainer';
 
 export default class Eventful extends Component {
   /*  Parent component
