@@ -34,7 +34,7 @@ import Options from './Options.js';
 import Tracker from './Tracker.js';
 import TrackingChanger from './TrackingChanger.js';
 import Navbar from './Navbar.js';
-import { configure } from '../lib/database-helpers';
+import { configure, firebaseLibrary } from '../lib/database-helpers';
 
 export default class ContentContainer extends Component {
     constructor(props) {
@@ -289,8 +289,8 @@ export default class ContentContainer extends Component {
         
         //
 
-        if(typeof firebase !== 'undefined'){ // store - currently only firebase.
-            const dataStore = firebase.database();
+        if(firebaseLibrary){ // store - currently only firebase.
+            const dataStore = firebaseLibrary.database();
             const eventsReference = dataStore.ref('events');
     
             eventsReference.push({
@@ -324,8 +324,8 @@ export default class ContentContainer extends Component {
 
     }
 
-    clearEvents(firebase) {
-        if(!firebase) return false;
+    clearEvents(firebaseLibrary) {
+        if(!firebaseLibrary) return false;
 
         let database = firebase.database();
 
@@ -383,7 +383,7 @@ export default class ContentContainer extends Component {
             pageSelectors = { this.state.pageSelectors }
             selectedSelectors = { this.state.selectedSelectors }
             setLogEvent = { this.setLogEvent.bind(this) }
-            clearEvents = { this.clearEvents.bind(this, firebase) }
+            clearEvents = { this.clearEvents.bind(this, firebaseLibrary) }
             logEvent = { this.state.logEvent }
             />;
 
