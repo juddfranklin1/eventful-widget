@@ -23,15 +23,15 @@ import config from '../config';
 */
 
 const configuration = !!!config ?  false : config;
-const firebaseLibrary = !!!firebase ? false : firebase;
+export const storeLibrary = !!!firebase ? false : firebase;
 
 export const configure = function(configType) {
     let database = false;
 
-    if (configType === 'FIREBASE' && firebaseLibrary && configuration){
-        firebaseLibrary.initializeApp(config);
+    if (configType === 'FIREBASE' && storeLibrary && configuration){
+        storeLibrary.initializeApp(config);
 
-        database = firebaseLibrary.database();
+        database = storeLibrary.database();
 
     } else {
         console.warn('No database connection established');

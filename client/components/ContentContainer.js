@@ -34,7 +34,7 @@ import Options from './Options.js';
 import Tracker from './Tracker.js';
 import TrackingChanger from './TrackingChanger.js';
 import Navbar from './Navbar.js';
-import { configure, firebaseLibrary } from '../lib/database-helpers';
+import { configure, storeLibrary } from '../lib/database-helpers';
 
 export default class ContentContainer extends Component {
     constructor(props) {
@@ -60,13 +60,14 @@ export default class ContentContainer extends Component {
     /**
     * @function getEvents
     * 
-    * @description  - wrapper function to get and process events from firebase
+    * @description  - wrapper function to get and process events from datastore.
+    * !!!Currently just supports firebase!!!
     * 
     * call the firebase datastore for events
     * 
     * Will need an optional param for specifying a narrower search.
     * 
-    * Could be abstracted to allow for an API for choosing your own callback behavior.
+    * Should be abstracted to allow for an API for choosing your own callback behavior.
     * 
     */
 
@@ -225,7 +226,7 @@ export default class ContentContainer extends Component {
      * @name createEventMarker
      * @function
      * @param {Object} context - info about the event
-     * @param {String} [eventId] - unique identifier provided by Firebase
+     * @param {String} [eventId] - unique identifier provided by datastore
      * 
      * @description create a tooltip to house the event data
      * 
@@ -289,8 +290,8 @@ export default class ContentContainer extends Component {
         
         //
 
-        if(firebaseLibrary){ // store - currently only firebase.
-            const dataStore = firebaseLibrary.database();
+        if(storeLibrary){ // store - currently only firebase.
+            const dataStore = storeLibrary.database();
             const eventsReference = dataStore.ref('events');
     
             eventsReference.push({
@@ -324,10 +325,10 @@ export default class ContentContainer extends Component {
 
     }
 
-    clearEvents(firebaseLibrary) {
-        if(!firebaseLibrary) return false;
+    clearEvents(storeLibrary) {
+        if(!storeLibrary) return false;
 
-        let database = firebase.database();
+        let database = storeLibrary.database();
 
         let eventsRef = database.ref('events');
 
@@ -362,7 +363,6 @@ export default class ContentContainer extends Component {
     }
 
     render() {
-
         let activeTabContent = null;
 
         if (this.state.activeTab === "add") {
@@ -383,7 +383,7 @@ export default class ContentContainer extends Component {
             pageSelectors = { this.state.pageSelectors }
             selectedSelectors = { this.state.selectedSelectors }
             setLogEvent = { this.setLogEvent.bind(this) }
-            clearEvents = { this.clearEvents.bind(this, firebaseLibrary) }
+            clearEvents = { this.clearEvents.bind(this, storeLibrary) }
             logEvent = { this.state.logEvent }
             />;
 
