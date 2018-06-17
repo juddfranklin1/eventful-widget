@@ -72,7 +72,6 @@ export default class ContentContainer extends Component {
     */
 
     getEvents(that, database) {
-        
         if(database){ // Currently does nothing if not connected to database. Should also check for local storage option and load from there.
             if(this.state.database === 'FIREBASE'){
                 database.ref('events').on('value', function(results) {
@@ -124,6 +123,7 @@ export default class ContentContainer extends Component {
      */
     
     toggleTooltip = function(e) {
+        const that = this;
         e.stopPropagation();
         const oldToolTip = document.querySelector('.tooltip');
         const context = e.target.eventDataObject;
@@ -135,8 +135,7 @@ export default class ContentContainer extends Component {
             }, false);
         }
 
-        if (e.target.classList.contains('close-btn')){
-            
+        if (e.target.classList.contains('close-btn')){ 
             return false;
         } else {
             const tooltip = document.createElement('span');
@@ -145,7 +144,7 @@ export default class ContentContainer extends Component {
             const eventDataKeys = Object.keys(context.eventData);
             
             const tooltipText = eventDataKeys.reduce(function(iter, curr, i) {
-                var escapedData = that.HTMLEscape(context.eventData[curr]);
+                var escapedData = HTMLEscape(context.eventData[curr]);
                 return curr === 'Event' ? iter + '<p><b>' + escapedData + '</b></p>' : iter + '<p>' + curr + ': ' + escapedData + '</p>';
             },'');
 
@@ -157,7 +156,7 @@ export default class ContentContainer extends Component {
             closeBtn.classList.add('close-btn');
             tooltip.appendChild(closeBtn);
 
-            tooltip.parentElement.removeEventListener('click', toggleTooltip);
+            tooltip.parentElement.removeEventListener('click', that.toggleTooltip);
             tooltip.classList.add('show');
 
         }
@@ -257,7 +256,6 @@ export default class ContentContainer extends Component {
      * 
      * @param {String} text - message linked to event
      * @param {String} evt - event type associated with tracked event
-     * @param {String} el - element targeted by event
      * @param {String} sel - selector associated with tracked event
      * 
      * @description - Updates state to increment the counter and change the overview tab content
@@ -293,7 +291,6 @@ export default class ContentContainer extends Component {
         if(storeLibrary){ // store - currently only firebase.
             const dataStore = storeLibrary.database();
             const eventsReference = dataStore.ref('events');
-    
             eventsReference.push({
                 event: evt.type,
                 eventData: eventData
@@ -313,7 +310,6 @@ export default class ContentContainer extends Component {
         const newSelectors = this.state.selectedSelectors.map(function(val){// Redux should do this.
             if(val.selector === sel && val.event === event.type)
                 val.count += 1;
-
             return val;
         });
         this.setState({

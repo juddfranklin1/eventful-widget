@@ -125,3 +125,22 @@ export const hasParent = function(el, parent){
     }
     return isInParent;
 }
+
+export const attributeFormatter = function(attr) {
+    attr = attr.split('-');
+    const selectorInfo = {};
+    selectorInfo.event = attr[2];
+    if (attr.indexOf('class') !== -1){
+      let selector = attr.slice(attr.indexOf('class') + 1);
+      selectorInfo.value = selector.join('-');
+      selectorInfo.type = 'class';
+    } else if (attr.indexOf('id') !== -1){
+      let selector = attr.slice(attr.indexOf('id') + 1);
+      selectorInfo.value = selector.join('-');
+      selectorInfo.type = 'id';
+    } else {
+      selectorInfo.value = selector[selector.length - 1];
+      selectorInfo.type = 'id';
+    }
+    return selectorInfo;
+}

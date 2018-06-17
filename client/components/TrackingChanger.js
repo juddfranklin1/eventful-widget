@@ -1,6 +1,6 @@
 import React,{Component} from 'react';
 
-import { selectorProcessor, hasParent } from '../lib/display-helpers.js';
+import { selectorProcessor, hasParent, attributeFormatter } from '../lib/display-helpers.js';
 import Select from 'react-select';
 import SelectorPicker from './SelectorPicker';
 import CurrentlyTrackedItem from './CurrentlyTrackedItem';
@@ -97,69 +97,57 @@ export default class TrackingChanger extends Component {
     that.state.eventOptions.map(function(el){
       const scope = that;
       el.events.map(function(event){
-        scope.body.addEventListener(event, that.delegator);
+
+        scope.body.addEventListener(event, function(e){
+          if(hasParent(e.target, document.getElementById('eventful-root'))) return;
+          const body = document.getElementsByTagName('body')[0];
+      
+          let eventfulAtts = [];
+      
+          for (var i = 0, atts = body.attributes, n = atts.length; i < n; i++) {
+            if(atts[i].name.indexOf('eventful-tracking') !== -1) eventfulAtts.push(atts[i].name);
+          }
+        
+          if(eventfulAtts.length === 0) return;
+      
+          // construct selectors from the attribute string
+
+          eventfulAtts = eventfulAtts.map(function(attr) {
+            attr = attr.split('-');
+            const selectorInfo = {};
+            selectorInfo.event = attr[2];
+            if (attr.indexOf('class') !== -1){
+              let selector = attr.slice(attr.indexOf('class') + 1);
+              selectorInfo.value = selector.join('-');
+              selectorInfo.type = 'class';
+            } else if (attr.indexOf('id') !== -1){
+              let selector = attr.slice(attr.indexOf('id') + 1);
+              selectorInfo.value = selector.join('-');
+              selectorInfo.type = 'id';
+            } else {
+              selectorInfo.value = attr[attr.length - 1];
+              selectorInfo.type = 'element';
+            }
+            return selectorInfo;
+          });
+      
+          // run event tracking when e.target.classList.has(selector)/e.target.tagName.toLowerCase() === selector / e.target.id === selector
+          eventfulAtts.map(
+            el => {
+              if(el.event === e.type){
+                if(el.type === 'id') {
+                  if (e.target.id === el.value) that.countEvent(e, '#' + el.value);
+                } else if(el.type === 'class'){
+                  if (e.target.classList.contains(el.value)) that.countEvent(e, '.' + el.value);
+                } else{
+                  if(e.target.tagName.toLowerCase() === el.value) that.countEvent(e, + '<' + el.value + '>');
+                }
+              }
+            }
+          );
+        });
       });
     });
-  }
-
-  /**
-   * @name delegator
-   * 
-   * @argument {String} selector - the selector in question
-   * @argument {String} attrString - the attribute string to add to the body tag.
-   * @argument {Funcion} countEvent - the countEvent function
-   * @argument {String} [remove] - If this is a delegation removal, what do you want to remove?
-   * 
-   * @description function to be called when delegated events are fired.
-   */
-
-  delegator(e){
-    if(hasParent(e.target, document.getElementById('eventful-root'))) return;
-    const body = document.getElementsByTagName('body')[0];
-
-    let eventfulAtts = [];
-
-    for (var i = 0, atts = body.attributes, n = atts.length; i < n; i++) {
-      if(atts[i].name.indexOf('eventful-tracking') !== -1) eventfulAtts.push(atts[i].name);
-    }
-  
-    if(eventfulAtts.length === 0) return;
-
-    // construct selectors from the attribute string
-
-    eventfulAtts = eventfulAtts.map(el => {
-      el = el.split('-');
-      const selectorInfo = {};
-      selectorInfo.event = el[2];
-      if (el.indexOf('class') !== -1){
-        let selector = el.slice(el.indexOf('class') + 1);
-        selectorInfo.value = selector.join('-');
-        selectorInfo.type = 'class';
-      } else if (el.indexOf('id') !== -1){
-        let selector = el.slice(el.indexOf('id') + 1);
-        selectorInfo.value = selector.join('-');
-        selectorInfo.type = 'id';
-      } else {
-        selectorInfo.value = selector[selector.length - 1];
-        selectorInfo.type = 'id';
-      }
-      return selectorInfo;
-    });
-
-    // run event tracking when e.target.classList.has(selector)/e.target.tagName.toLowerCase() === selector / e.target.id === selector
-    eventfulAtts.map(
-      el => {
-        if(el.event === e.type){
-          if(el.type === 'id') {
-            if (e.target.id === el.value) console.log(e);
-          } else if(el.type === 'class'){
-            if (e.target.classList.has(el.value)) console.log(e);
-          } else{
-            if(e.target.tagName.toLowerCase() === el.value) console.log(e);
-          }
-        }
-      }
-    );
   }
 
   /**
@@ -216,6 +204,7 @@ export default class TrackingChanger extends Component {
    * @name countEvent
    * 
    * @param {Event} event 
+   * @param {String} selector 
    * 
    * @description - The function that creates event information
    * and sends it back up the component tree using props.updateCounter.
@@ -226,7 +215,7 @@ export default class TrackingChanger extends Component {
   countEvent(event, selector) {
     const that = this;
     let description = 'Last tracked event: '+ event.type + ' on ' + selector + '.';// This is not needed. Maybe a more robust identifier? element.outerHTML?
-    that.props.updateCounter(description, event, event.target, that.sel);
+    that.props.updateCounter(description, event, event.target, selector);
     return true;
   };
 
