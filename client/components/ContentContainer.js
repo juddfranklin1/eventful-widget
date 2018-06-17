@@ -127,7 +127,7 @@ export default class ContentContainer extends Component {
         e.stopPropagation();
         const oldToolTip = document.querySelector('.tooltip');
         const context = e.target.eventDataObject;
-
+        
         if (oldToolTip !== null && oldToolTip) {// no lingering tooltips, please.
             oldToolTip.classList.add('hide');
             oldToolTip.addEventListener("transitionend", function(e) {
@@ -285,7 +285,8 @@ export default class ContentContainer extends Component {
         };
 
         const eventMarker = this.createEventMarker(context);
-        
+        eventMarker.eventDataObject = context;
+        eventMarker.addEventListener('click', this.toggleTooltip,{capture:true});
         //
 
         if(storeLibrary){ // store - currently only firebase.
