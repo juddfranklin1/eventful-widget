@@ -9,7 +9,7 @@ const TestGenerator = function(props){
         elementTagText = ' ' + props.elementType + elementTagText;
     }
 
-    function onAddElement(sel){//Currently sel is only a class, but it should be more generic.
+    function onAddElement(sel){// Currently sel is only a class, but it should be more generic.
         let selector = sel || '';
 
         let TestElement = document.createElement(props.elementTag);
@@ -18,10 +18,16 @@ const TestGenerator = function(props){
         
         if(props.elementTag === 'input'){
             const elementType = props.elementType || 'text';
-            TestElement.setAttribute('type', props.elementType);
+            TestElement.setAttribute('type', elementType);
         }
 
-        TestElement.innerHTML = 'New' + elementTagText +' Element';
+        if(props.elementTag === 'button'){
+            const elementContent = props.elementContent || 'text';
+            TestElement.innerHTML = elementContent;
+        } else {
+            TestElement.innerHTML = 'New' + elementTagText +' Element';
+        }
+
 
         document.querySelector('body').append(TestElement);
     }

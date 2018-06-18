@@ -1,8 +1,9 @@
 import React,{Component} from 'react';
 
-import { selectorProcessor, hasParent, attributeFormatter } from '../lib/display-helpers.js';
+import { selectorProcessor, hasParent, selectorObjectToString } from '../lib/display-helpers.js';
 import Select from 'react-select';
-import SelectorPicker from './SelectorPicker';
+import 'react-select/dist/react-select.css';
+
 import CurrentlyTrackedItem from './CurrentlyTrackedItem';
 
 import { SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION } from 'constants';
@@ -13,7 +14,8 @@ export default class TrackingChanger extends Component {
   constructor(props) {
     super();
     this.state = {
-      chosenEvent: '',
+      chosenSelector: '',
+      selectValue: '',
       eventOptions: [
         // expand this array as event groups expand
         // https://developer.mozilla.org/en-US/docs/Web/Events
@@ -222,44 +224,48 @@ export default class TrackingChanger extends Component {
   /**
    * @name onSelectSelector
    * 
-   * @param {String} toAdd - selector to be tracked
-   * @param {String} evt - name of event to be tracked 
+   * @param {String} newSelector - selector to be tracked
+   * @param {String} newEvent - name of event to be tracked 
    * 
    * update the list of selected selectors with an object
    * containing the most recently selected selector matched with the event selected.
    * 
    */
-  onSelectSelector(toAdd, evt) {
+  onSelectEvent(newSelector, newEvent) {
     let currentlySelected = this.props.selectedSelectors;
-    
-    if(currentlySelected.indexOf(toAdd) === -1){
+    const event = newEvent || '';
+
+    if(currentlySelected.indexOf(newSelector) === -1){
 
       const now = new Date().toDateString();
 
       currentlySelected[currentlySelected.length] = {
-        selector: toAdd,
-        event: evt,
+        selector: newSelector,
+        event: event,
         count: 0,
         started: now
       };
     
       this.setState({
         selectedSelectors: currentlySelected,
-        chosenEvent: ''
+        chosenSelector: ''
       });
   
-      var attrString = 'eventful-tracking-' + evt + selectorProcessor(toAdd);
+      var attrString = 'eventful-tracking-' + newEvent + selectorProcessor(newSelector);
       this.body.setAttribute(attrString, true);
     }
 
   }
 
-  handleChange (selectedOption){
+  handleSelectorChange (selectedOption){
     this.setState({
 
-			chosenEvent: selectedOption.value,
+			chosenSelector: selectedOption.value,
     
     });
+  }
+  handleEventChange (selectedOption){
+    this.onSelectEvent(this.state.chosenSelector, selectedOption.value);
   }
 
   renderEventPicker() {//Currently Tracking section should be abstracted into a component for use everywhere.
@@ -272,9 +278,37 @@ export default class TrackingChanger extends Component {
       </section>
     ) : '';
 
-    if (this.state.chosenEvent === ''){
-      // Add ability to focus on specific event categories depending upon element chosen.
-      // Need to make element selection first.
+    if (this.state.chosenSelector === ''){
+      const selectorOptions = this.props.pageSelectors.map(function(e,i){
+        var value = selectorObjectToString(e);
+        return {
+          value: value, label: value
+        }
+      });
+
+      const label = this.props.eventName + '-label';  
+
+      return (
+        <div className='choose-selector add-tracking-wrapper'>
+          { currentlyTracking }
+
+          <label htmlFor='chooseSelector'><h4>Pick from the following selectors to track events on.</h4>
+          
+            <Select
+              name = 'chooseSelector'
+              value = { this.state.selectValue }
+              options = { selectorOptions }
+              id = { label }
+              clearable = { false }
+              aria-describedby = 'Choose a selector from the page to track events on.'
+              aria-label = 'Choose selector'
+              autoFocus = { true }
+              onChange = { this.handleSelectorChange.bind(this) }
+            />
+          </label>
+        </div>
+      );
+    } else {
       // Issue #13 - https://github.com/juddfranklin1/eventful-widget/issues/13
       const eventOptions = this.state.eventOptions[0].events.map((e,i) =>( { value: e, label: e } ));
       return (
@@ -285,35 +319,19 @@ export default class TrackingChanger extends Component {
             <h4>Pick an event to track.</h4>
           
             <Select
-              name = 'chooseEvent'
+              name = "chooseEvent"
               value = { this.state.selectValue }
-              onChange = { this.handleChange.bind(this) }
+              onChange = { this.handleEventChange.bind(this) }
               options = { eventOptions }
               id = "chooseEvent"
               clearable = { false }
-              aria-describedby = { 'Choose an event to track' }
+              aria-describedby = { "Choose an event to track" }
               aria-label = "Choose event"
               autoFocus = { true }
-
             />
           </label>
         </div>
       );
-
-    } else {
-      return (
-        <div className='choose-class add-tracking-wrapper'>
-          { currentlyTracking }
-          
-          <SelectorPicker
-            selectedSelectors={ this.props.selectedSelectors }
-            pageSelectors={ this.props.pageSelectors }
-            eventName={ this.state.chosenEvent }
-            selectSelector={ (sel, evt) => this.onSelectSelector(sel, this.state.chosenEvent) }
-          />
-        </div>
-      );
-
     }
   }
 

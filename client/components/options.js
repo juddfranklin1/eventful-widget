@@ -12,7 +12,16 @@ export default class Options extends Component {
     super();
 
     this.state = {
-
+      elements: [
+        { tag: 'div', class: 'test-div test-1', content: '', id: '' },
+        { tag: 'div', class: 'test-div test-2', content: '', id: '' },
+        { tag: 'input', class: 'test-input', type: 'text', content: 'click', id: '' },
+        { tag: 'input', class: 'test-input', type: 'checkbox', content: 'click', id: '' },
+        { tag: 'button', class: 'test-content', content: 'test button', id: '' },
+        { tag: 'textarea', class: 'test-textarea', content: '', id: '' },
+        { tag: 'video', class: 'test-video', content: '', id: '' },
+        { tag: 'audio', class: 'test-audio', content: '', id: '' }
+      ],
       isTesting: true,
       logEvent: props.logEvent || true
 
@@ -33,20 +42,25 @@ export default class Options extends Component {
   }
 
   render(){
-
+    const that = this;
     // Each instance of Test Generator being clicked needs to also update the pageSelectors on the ContentContainer state.
     function TestElements(isTesting, onAddElement){//This just gives us some generated content to work with as needed.
       if(isTesting){
         return (
           <div id="test-elements" key="testElements-1">
             <h3>Add an element to test the tracking functionality</h3>
-            <TestGenerator elementTag='div' elementId='' elementClass='test-1' />
-            <TestGenerator elementTag='div' elementId='' elementClass='test-2' />
-            <TestGenerator elementTag='input' elementType='text' elementClass='test-3' />
-            <TestGenerator elementTag='input' elementType='checkbox' elementClass='test-3' />
-            <TestGenerator elementTag='button' elementContent='click' />
-            <TestGenerator elementTag='video' />
-            <TestGenerator elementTag='audio' />
+            { that.state.elements.map(function(el, ind){
+              return (
+                <TestGenerator
+                  key={ ind }
+                  elementTag= { el.tag }
+                  elementId= { el.id }
+                  elementClass= { el.class }
+                  elementContent= { el.content }
+                  elementType={ el.type }
+                />
+              );  
+            }) }
           </div>
         );
       }
