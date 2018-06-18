@@ -1,10 +1,10 @@
 import React,{Component} from 'react';
 
 import { selectorProcessor, hasParent, selectorObjectToString } from '../lib/display-helpers.js';
+import CurrentlyTracking from './CurrentlyTracking';
+
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
-
-import CurrentlyTrackedItem from './CurrentlyTrackedItem';
 
 import { SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION } from 'constants';
 
@@ -269,15 +269,7 @@ export default class TrackingChanger extends Component {
   }
 
   renderEventPicker() {//Currently Tracking section should be abstracted into a component for use everywhere.
-    let currentlyTracking = this.props.selectedSelectors.length > 0 ? (
-      <section className={ 'currently-tracking' }>
-        <h3>Currently Tracking</h3>
-        <ul>
-          { this.props.selectedSelectors.map((e, i)=>( <CurrentlyTrackedItem key={ i } e={ e } event={ event } removeTracking={ this.removeTracking.bind(this) } /> )) }
-        </ul>
-      </section>
-    ) : '';
-
+    
     if (this.state.chosenSelector === ''){
       const selectorOptions = this.props.pageSelectors.map(function(e,i){
         var value = selectorObjectToString(e);
@@ -290,7 +282,6 @@ export default class TrackingChanger extends Component {
 
       return (
         <div className='choose-selector add-tracking-wrapper'>
-          { currentlyTracking }
 
           <label htmlFor='chooseSelector'><h4>Pick from the following selectors to track events on.</h4>
           
@@ -308,13 +299,12 @@ export default class TrackingChanger extends Component {
           </label>
         </div>
       );
-    } else {
+    }
+    else {
       // Issue #13 - https://github.com/juddfranklin1/eventful-widget/issues/13
       const eventOptions = this.state.eventOptions[0].events.map((e,i) =>( { value: e, label: e } ));
       return (
         <div className='choose-event add-tracking-wrapper'>
-          { currentlyTracking }
-        
           <label htmlFor="chooseEvent">
             <h4>Pick an event to track.</h4>
           
@@ -336,9 +326,17 @@ export default class TrackingChanger extends Component {
   }
 
   render() {
+    const currentlyTracking = this.props.selectedSelectors.length > 0 ? (
+      <CurrentlyTracking
+        selectedSelectors={ this.props.selectedSelectors }
+        removeTracking={ this.removeTracking.bind(this) }
+        event={ event }
+      />
+    ) : '';
+
     return (
       <div className='add-wrapper section'>
-        
+        { currentlyTracking }
         <h2>Add Tracking</h2>
 
         { this.renderEventPicker() }
