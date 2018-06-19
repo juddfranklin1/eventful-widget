@@ -16,7 +16,7 @@ export const HTMLEscape = (string) => {
     if (typeof string !== 'string') return false;
     string = string.split('');
 
-    return string.reduce(function(acc, curr){
+    return string.reduce((acc, curr) => {
             if(keys.indexOf(curr) !== -1) curr = tagsToReplace[curr];
             return acc + curr;
         }, '');
@@ -125,7 +125,14 @@ export const hasParent = function(el, parent){
     }
     return isInParent;
 }
-
+/**
+ * 
+ * @name attributeFormatter
+ * 
+ * @description - reformat a text string to be used as an html attribute
+ * 
+ * @param {String} attr - text to format to conform to html attribute conventions
+ */
 export const attributeFormatter = function(attr) {
     attr = attr.split('-');
     const selectorInfo = {};
@@ -143,4 +150,78 @@ export const attributeFormatter = function(attr) {
       selectorInfo.type = 'id';
     }
     return selectorInfo;
+}
+
+/**
+ * @name rm
+ * 
+ * @description - remove an element; call a callback, if provided
+ * 
+ * @param {Element} elem 
+ * @param {Function} callback 
+ * @param {Array} args - arguments to be passed to the callback 
+ */
+export const rm = function(elem, callback, args = []) {
+    if(isElem(elem)) {
+        elem.parentElement.removeChild(elem); // not sure if this needs to check if parentElement exists.
+    } else {
+        throw new TypeError('You tried to remove a non-element from the DOM using the rm display helper function.');
+    }
+    return typeof callback === 'function' ? callback(...args) : elem;
+}
+
+/**
+ * @name mk
+ * 
+ * @description - create an element; call a callback, if provided
+ * 
+ * @param {*} elem 
+ * @param {Element} parentEl 
+ * @param {Function} callback 
+ * @param {Array} args - arguments to be passed to the callback 
+ */
+export const mk = function(elem, parentEl, callback, args = []) {
+    if(!isElem(elem) && typeof elem === 'string'){
+        elem = HTMLEscape(elem);
+    } else if(!isElem(elem)) {
+        throw new TypeError('You tried to append something that couldn\'t be appended using the mk display helper function.');
+    }
+
+    if(this.isElem(parentEl)){
+        parentEl.appendChild(elem);
+    } else {
+        throw new TypeError('You tried to append something to a non-element using the mk display helper function.');
+    }
+
+    return typeof callback === 'function' ? callback(...args) : elem;
+}
+
+/**
+ * @name isNode
+ * 
+ * @param {Object} obj - object to test for Nodeness
+ * @returns {Boolean}
+ * 
+ * credit: https://stackoverflow.com/questions/384286/javascript-isdom-how-do-you-check-if-a-javascript-object-is-a-dom-object
+ */
+export const isNode = function(obj){
+    return (
+        typeof Node === "object" ? o instanceof Node : 
+        obj && typeof obj === "object" && typeof obj.nodeType === "number" && typeof obj.nodeName==="string"
+    );
+}
+  
+/**
+ * @name isElem
+ * 
+ * @param {Object} obj - object to test for Element
+ * @returns {Boolean}
+ * 
+ * credit: https://stackoverflow.com/questions/384286/javascript-isdom-how-do-you-check-if-a-javascript-object-is-a-dom-object
+ */
+export const isElem = function(obj){
+    return (
+        typeof HTMLElement === "object" ? obj instanceof HTMLElement :
+        obj && typeof obj === "object" && obj !== null && obj.nodeType === 1 && typeof obj.nodeName==="string"
+    );
 }

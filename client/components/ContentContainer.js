@@ -28,7 +28,7 @@
 
 
 import React, { Component } from 'react';
-import { HTMLEscape, wrap, unique } from '../lib/display-helpers.js';
+import { HTMLEscape, wrap, unique, rm } from '../lib/display-helpers.js';
 
 import Options from './Options.js';
 import Tracker from './Tracker.js';
@@ -52,7 +52,6 @@ export default class ContentContainer extends Component {
             database: 'FIREBASE'
         }
 
-        this.HTMLEscape = HTMLEscape;
     }
 
     flag = false;
@@ -125,35 +124,45 @@ export default class ContentContainer extends Component {
     toggleTooltip = function(e) {
         const that = this;
         e.stopPropagation();
-        const oldToolTip = document.querySelector('.tooltip');
+        const oldToolTip = document.querySelector('.eventful-tooltip');
         const context = e.target.eventDataObject;
         
         if (oldToolTip !== null && oldToolTip) {// no lingering tooltips, please.
             oldToolTip.classList.add('hide');
+            oldToolTip.parentElement.classList.remove('has-tooltip');
             oldToolTip.addEventListener("transitionend", function(e) {
                 oldToolTip.parentElement.removeChild(oldToolTip);
             }, false);
         }
 
-        if (e.target.classList.contains('close-btn')){ 
+        if (e.target.classList.contains('eventful-close-btn')){ 
             return false;
         } else {
             const tooltip = document.createElement('span');
-            tooltip.classList.add('tooltip');
+            tooltip.classList.add('eventful-tooltip');
+
+            const tooltipHeadline = '<h5>' + context.eventData['event'] + ' on ' + context.eventData['selector'] + '</h5>';
+            const tooltipSubHeadline = '<h6>' + context.eventData['time'] + '</h6>';
+
+            delete context.eventData['event'];
+            delete context.eventData['selector'];
+            delete context.eventData['time'];
 
             const eventDataKeys = Object.keys(context.eventData);
-            
+
             const tooltipText = eventDataKeys.reduce(function(iter, curr, i) {
                 var escapedData = HTMLEscape(context.eventData[curr]);
-                return curr === 'Event' ? iter + '<p><b>' + escapedData + '</b></p>' : iter + '<p>' + curr + ': ' + escapedData + '</p>';
-            },'');
+                var classCurr = curr.toLowerCase();
+                return iter + '<dt class="eventful-tooltip-key-' + classCurr + '">' + curr + '</dt><dd class="eventful-tooltip-value-' + classCurr + '">' + escapedData + '</dd>';
+            },'<dl class="eventful-tooltip-content event-details">');
 
-            tooltip.innerHTML = tooltipText;
+            tooltip.innerHTML = tooltipHeadline + tooltipSubHeadline + tooltipText + '</dl>';
 
             this.appendChild(tooltip);// Tooltip inserted into element being hovered
+            this.classList.add('has-tooltip');
             
             const closeBtn = document.createElement('span');
-            closeBtn.classList.add('close-btn');
+            closeBtn.classList.add('eventful-close-btn');
             tooltip.appendChild(closeBtn);
 
             tooltip.parentElement.removeEventListener('click', that.toggleTooltip);
@@ -162,9 +171,7 @@ export default class ContentContainer extends Component {
         }
     }
 
-    componentWillMount() {
-        const that = this;
-
+    gatherSelectors() {
         /**
          * Gathering all ids, classes, and tags used on the page.
          * 
@@ -176,13 +183,13 @@ export default class ContentContainer extends Component {
         }, []);
 
         const trimWrap = wrap(String.prototype.trim);
+
         let classNames = [].reduce.call(document.querySelectorAll('[class]'), function(acc, e) {
-            return e.getAttribute('class').split(' ').map(trimWrap).reduce(unique, acc);
+            return e.getAttribute('class').split(' ').map(trimWrap).reduce(unique, acc).filter(function(el){ return el.indexOf('eventful-') === -1 && el.indexOf('Select') === -1; });
         }, []);
         classNames = classNames.map(function(ele){
             return { type: 'class', value: ele };
         });
-
         
         const DOMWalker = document.createTreeWalker(
             document.body,
@@ -213,12 +220,28 @@ export default class ContentContainer extends Component {
             pageSelectors: selectors
         });
 
+    }
+
+    componentWillMount() {
+        
+        const that = this;
+
+        this.gatherSelectors();// Doing this before eventful loads avoids the problem of tracking eventful elements.
+
         const database = configure(this.state.database);
 
         this.getEvents(that, database);
 
+        // Set it up to check for element changes to the page.
+        const observer = new MutationObserver(this.gatherSelectors.bind(this));
+        observer.observe(document.body,{ childList: true, subtree: true });
+
         return;
 
+    }
+
+    componentDidMount(){
+        document.body.addEventListener('keyup', this.keyboardNavigateEvents, true);
     }
 
     /**
@@ -234,7 +257,7 @@ export default class ContentContainer extends Component {
      */
     createEventMarker(context, eventId) {
         let eventMarker = document.createElement('span');
-        eventMarker.classList.add('event-marker');
+        eventMarker.classList.add('eventful-event-marker');
         
         const leftVal = context.eventData.clientX;
         const topVal = context.eventData.clientY;
@@ -263,10 +286,14 @@ export default class ContentContainer extends Component {
      * Currently also creates event marker. That should be a separate function.
      */
     updateCounter(text, evt, el, sel) {
-        // use lodash to flatten event data to an array for logging.
+        
+        const now = new Date();
+        const formattedTime = now.toDateString() + ' ' + now.getHours() + ':' + now.getMinutes() + ':' + now.getSeconds() + ':' + now.getMilliseconds();
 
         // Mark the location of the event
         const eventData = {
+            'timeStamp': now,
+            'time': formattedTime,
             'selector': sel,
             'event': evt.type,
             'targetHTML': evt.target.outerHTML,
@@ -308,7 +335,7 @@ export default class ContentContainer extends Component {
             console.info('************ END EVENT DATA ***************');
         }
 
-        const newSelectors = this.state.selectedSelectors.map(function(val){// Redux should do this.
+        const newSelectors = this.state.selectedSelectors.map(function(val){
             if(val.selector === sel && val.event === event.type)
                 val.count += 1;
             return val;
@@ -330,12 +357,55 @@ export default class ContentContainer extends Component {
         let eventsRef = database.ref('events');
 
         eventsRef.remove(function(){
-            let markers = document.querySelectorAll('.event-marker');
+            let markers = document.querySelectorAll('.eventful-event-marker');
             for(var i = 0; i < markers.length; i++) {
                 var markerParent = markers[i].parentNode;
                 if(markerParent) markerParent.removeChild(markers[i]);
             }
         });
+    }
+
+    /**
+     * 
+     * @name keyboardNavigateEvents
+     * 
+     * @description - if tooltips are visible, allow the left and right arrows to navigate through the tracked events, toggling tooltips as you go.
+     * 
+     * @param {Event} e 
+     */
+    keyboardNavigateEvents(e){
+
+        const currentlyTooltipped = document.getElementsByClassName('has-tooltip');
+        if(currentlyTooltipped.length > 0){
+            
+            const curr = currentlyTooltipped[0];
+            const nextSib = curr.nextSibling;
+            const prevSib = curr.previousSibling;
+
+            if(typeof curr !== 'undefined'){
+                if (e.keyCode === 37){
+                    if(!!prevSib &&   !!prevSib.classList && prevSib.classList.contains('eventful-event-marker')){
+                        [].forEach.call(currentlyTooltipped, (el) => {
+                            el.classList.remove('has-tooltip');
+                            const tooltip = el.getElementsByClassName('eventful-tooltip')[0];
+                            el.removeChild(tooltip);
+                        });
+                        prevSib.click();
+                    }
+                } else if (e.keyCode === 39){
+                    if(!!nextSib && !!nextSib.classList && nextSib.classList.contains('eventful-event-marker')){
+                        [].forEach.call(currentlyTooltipped, (el) => {
+                            el.classList.remove('has-tooltip');
+                            const tooltip = el.getElementsByClassName('eventful-tooltip')[0];
+                            el.removeChild(tooltip);
+                        });
+                        nextSib.click();
+                    }
+    
+                }
+            }
+
+        }
     }
 
     changeTab(tab) {

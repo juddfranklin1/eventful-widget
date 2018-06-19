@@ -99,9 +99,8 @@ export default class TrackingChanger extends Component {
     that.state.eventOptions.map(function(el){
       const scope = that;
       el.events.map(function(event){
-
-        scope.body.addEventListener(event, function(e){
-          if(hasParent(e.target, document.getElementById('eventful-root'))) return;
+        scope.body.addEventListener(event, function(e){// This is a clunky function but makes sure that everything is up to date.
+          if(hasParent(e.target, document.getElementById('eventful-root'))) return;// don't bother with elements in the tracker itself
           const body = document.getElementsByTagName('body')[0];
       
           let eventfulAtts = [];
@@ -115,20 +114,34 @@ export default class TrackingChanger extends Component {
           // construct selectors from the attribute string
 
           eventfulAtts = eventfulAtts.map(function(attr) {
-            attr = attr.split('-');
+            const attrArr = attr.split('-');
             const selectorInfo = {};
-            selectorInfo.event = attr[2];
+            selectorInfo.event = attrArr[2];
             if (attr.indexOf('class') !== -1){
-              let selector = attr.slice(attr.indexOf('class') + 1);
+              let selector = attrArr.slice(attrArr.indexOf('class') + 1);
               selectorInfo.value = selector.join('-');
               selectorInfo.type = 'class';
-            } else if (attr.indexOf('id') !== -1){
-              let selector = attr.slice(attr.indexOf('id') + 1);
+            } else if (attrArr.indexOf('id') !== -1){
+              let selector = attrArr.slice(attrArr.indexOf('id') + 1);
               selectorInfo.value = selector.join('-');
               selectorInfo.type = 'id';
             } else {
-              selectorInfo.value = attr[attr.length - 1];
+              selectorInfo.value = attrArr[attrArr.length - 1];
               selectorInfo.type = 'element';
+            }
+
+            if (selectorInfo.event === 'mouseenter' || selectorInfo.event === 'mouseleave'){
+              const query = selectorInfo.type === 'element' ? selectorInfo.value : selectorInfo.type === 'id' ? '#' + selectorInfo.value : '.' + selectorInfo.value;
+              const targets = document.querySelectorAll(query);
+              [].forEach.call(targets, (el) => {
+                if(el.hasAttribute(attr)) return;
+                el.setAttribute(attr, true);
+                el.addEventListener(selectorInfo.event, function(e){
+
+                  //not sure if there is a way to keep this from triggering if leaving an event marker, or maybe leave it as is?
+                  that.countEvent(e, query);
+                });
+              });
             }
             return selectorInfo;
           });
@@ -142,7 +155,9 @@ export default class TrackingChanger extends Component {
                 } else if(el.type === 'class'){
                   if (e.target.classList.contains(el.value)) that.countEvent(e, '.' + el.value);
                 } else{
-                  if(e.target.tagName.toLowerCase() === el.value) that.countEvent(e, + '<' + el.value + '>');
+                  if(e.target.tagName.toLowerCase() === el.value){
+                    that.countEvent(e, '<' + el.value + '>');
+                  } 
                 }
               }
             }
@@ -150,25 +165,6 @@ export default class TrackingChanger extends Component {
         });
       });
     });
-  }
-
-  /**
-   * @name delegateEvent
-   * 
-   * @param {String} eventType - Event type to be delegated
-   * @param {String} newSelector - new selector to add to th list of targeted selectors.
-   * 
-   * @description - The actual function that sets up an event to be tracked.
-   * Uses event delegation in order to make sure that future elements of the same selector get tracked as well.
-   * 
-   */
-  delegateEvent(eventType, newSelector) {
-    const evt = eventType || 'click';
-    var attrString = 'eventful-tracking-' + evt + selectorProcessor(newSelector);
-    if(this.body.hasAttribute(attrString)) return;
-
-    const that = this;
-    this.body.addEventListener(evt, (that.delegator)(that, newSelector, attrString, that.countEvent.bind(that)),true);
   }
 
   /**
@@ -237,7 +233,7 @@ export default class TrackingChanger extends Component {
 
     if(currentlySelected.indexOf(newSelector) === -1){
 
-      const now = new Date().toDateString();
+      const now = new Date().toTimeString();
 
       currentlySelected[currentlySelected.length] = {
         selector: newSelector,

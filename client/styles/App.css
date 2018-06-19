@@ -1,3 +1,21 @@
+html, body {
+  margin: 0;
+  height: 100%;
+}
+body {
+  height: 100%;
+  padding-top: 1px;/* fixes margin collapse issue */
+}
+* {
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+/* CSS Variables */
+.eventful-container {
+  --key-color: #b1d;
+}
 /*Eventful Styles*/
 .eventful-container,
 .eventful-container *,
@@ -41,7 +59,7 @@
 
 .eventful-content-wrapper {
   background: #eee;
-  border: 1px solid #b1d;
+  border: 1px solid var(--key-color, #b1d);
   padding: 0;
 }
 
@@ -52,10 +70,10 @@
   padding: 10px;
   position: absolute;
   text-align: center;
-  background: #b1d;
+  background: var(--key-color, #b1d);
   transition: background-color 1s;
   -webkit-transition: background-color 1s;
-  border: 1px solid #b1d;
+  border: 1px solid var(--key-color, #b1d);
 }
 .right .eventful-toggle-tab {
   left: -80px;
@@ -87,7 +105,7 @@
   background: white;
 }
 .shown .eventful-toggle-tab a {
-  color: #b1d;
+  color: var(--key-color, #b1d);
 }
 .eventful-content-wrapper {
   clear: both;
@@ -147,7 +165,7 @@
 .eventful-navigation li a {
   display: inline-block;
   padding: 10px;
-  color: #b1d;
+  color: var(--key-color, #b1d);
   font-weight: bold;
   cursor: pointer;
 }
@@ -171,7 +189,7 @@ button[content="Test"] {
 }
 
 #test-elements {
-  border: 1px solid #b1d;
+  border: 1px solid var(--key-color, #b1d);
   margin: 10px 0;
   padding: 10px;
 }
@@ -191,37 +209,73 @@ button[content="Test"] {
   transition: all 2s linear;
 }
 
-.event-marker {
-  border: 1px solid red;
+.eventful-event-marker {
+  border: 1px solid var(--key-color, #b1d);
+  border-radius: 50%;
   width: 6px;
   height: 6px;
   position: absolute;
   cursor: help;
+  background-color: transparent;
+  transition: .25s background-color;
+}
+
+.has-tooltip {
+  background-color: var(--key-color, #b1d);
 }
 
 [class^='test'] {
   cursor: pointer;
 }
 
-.tooltip {
+.eventful-tooltip {
   left: 3px;
   top: 3px;
   background: white;
-  border: 1px solid black;
-  padding: 1rem 2rem;
+  border: 1px solid var(--key-color, #b1d);
+  padding: 0 1rem;
   position: absolute;
-  width: 8rem;
+  width: 12rem;
   word-break: break-all;
   z-index: 19000;
   opacity: 0;
   transition: .5s opacity;
 }
 
-.tooltip p {
-  margin: .25rem 0;
+.eventful-tooltip-content {
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  flex-flow: row wrap;
+  grid-template-columns: 50% 50%;
 }
 
-.close-btn {
+
+.eventful-tooltip dt {
+  width: 50%;
+  margin: .25rem 0;
+  font-weight: bold;
+  font-size: .9rem;
+  color: var(--key-color, #b1d);
+}
+.eventful-tooltip dt:after {
+  display: inline;
+  content: ':';
+}
+.eventful-tooltip dd {
+  line-height: 26px;
+  margin-left: auto;
+  width: 50%;
+  font-size: .8rem;
+}
+
+dd.eventful-tooltip-value-targethtml {
+  line-height: 15px;
+}
+
+.eventful-close-btn {
   position: absolute;
   top: 5px;
   right: 5px;
@@ -230,14 +284,16 @@ button[content="Test"] {
   display: block;
   cursor: pointer;
 }
-.close-btn:before {
+.eventful-close-btn:before {
   position: absolute;
-  width: 20px;
-  height: 20px;
-  top: 0;
+  width: 16px;
+  height: 16px;
+  top: 4px;
   right: 0;
   content: 'X';
   font-family: sans-serif;
+  font-size: .8rem;
+  color: red;
 }
 
 .show {
