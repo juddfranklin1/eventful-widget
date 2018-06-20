@@ -106,7 +106,7 @@ export default class TrackingChanger extends Component {
           let eventfulAtts = [];
       
           for (var i = 0, atts = body.attributes, n = atts.length; i < n; i++) {
-            if(atts[i].name.indexOf('eventful-tracking') !== -1) eventfulAtts.push(atts[i].name);
+            if(atts[i].name.indexOf('data-eventful-tracking') !== -1) eventfulAtts.push(atts[i].name);
           }
         
           if(eventfulAtts.length === 0) return;
@@ -116,7 +116,7 @@ export default class TrackingChanger extends Component {
           eventfulAtts = eventfulAtts.map(function(attr) {
             const attrArr = attr.split('-');
             const selectorInfo = {};
-            selectorInfo.event = attrArr[2];
+            selectorInfo.event = attrArr[3];
             if (attr.indexOf('class') !== -1){
               let selector = attrArr.slice(attrArr.indexOf('class') + 1);
               selectorInfo.value = selector.join('-');
@@ -137,7 +137,6 @@ export default class TrackingChanger extends Component {
                 if(el.hasAttribute(attr)) return;
                 el.setAttribute(attr, true);
                 el.addEventListener(selectorInfo.event, function(e){
-
                   //not sure if there is a way to keep this from triggering if leaving an event marker, or maybe leave it as is?
                   that.countEvent(e, query);
                 });
@@ -188,10 +187,13 @@ export default class TrackingChanger extends Component {
     // Dump the tracker if it matches both selector and event
     const newSelectedSelectors = this.props.selectedSelectors.filter( el => el.selector !== selector || el.event !== eventType );
 
-    var selectorAttribute = 'eventful-tracking-' + eventType;
+    var selectorAttribute = 'data-eventful-tracking-' + eventType;
     selectorAttribute += selectorProcessor(selector);
 
-    this.body.removeAttribute(selectorAttribute);
+    const elsToClear = document.querySelectorAll('[' + selectorAttribute + ']');
+    [].forEach.call(elsToClear,(el) => {
+      el.removeAttribute(selectorAttribute);
+    });
 
     this.props.changeSelectedSelectors(newSelectedSelectors);
     
@@ -212,8 +214,13 @@ export default class TrackingChanger extends Component {
    */
   countEvent(event, selector) {
     const that = this;
-    let description = 'Last tracked event: '+ event.type + ' on ' + selector + '.';// This is not needed. Maybe a more robust identifier? element.outerHTML?
-    that.props.updateCounter(description, event, event.target, selector);
+
+    selector = selector.replace(/[<>]/g,'');//clear out tag opening and closing symbols.
+    
+    if(!!document.querySelector('[data-eventful-tracking-' + event.type + selectorProcessor(selector) + ']')){// don't track if there's no attribute requiring it. 
+      let description = 'Last tracked event: '+ event.type + ' on ' + selector + '.';
+      that.props.updateCounter(description, event, event.target, selector);
+    }
     return true;
   };
 
@@ -247,7 +254,7 @@ export default class TrackingChanger extends Component {
         chosenSelector: ''
       });
   
-      var attrString = 'eventful-tracking-' + newEvent + selectorProcessor(newSelector);
+      var attrString = 'data-eventful-tracking-' + newEvent + selectorProcessor(newSelector);
       this.body.setAttribute(attrString, true);
     }
 
