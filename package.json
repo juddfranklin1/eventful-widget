@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/juddfranklin1/eventful-widget#readme",
   "dependencies": {
+    "aws-sdk": "^2.263.1",
     "axios": "^0.17.1",
     "babel": "^6.23.0",
     "babel-core": "^6.26.3",

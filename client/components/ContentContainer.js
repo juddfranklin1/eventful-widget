@@ -34,7 +34,7 @@ import Options from './Options.js';
 import Tracker from './Tracker.js';
 import TrackingChanger from './TrackingChanger.js';
 import Navbar from './Navbar.js';
-import { configure, storeLibrary } from '../lib/database-helpers';
+import { configure, getStoreLibrary } from '../lib/database-helpers';
 
 export default class ContentContainer extends Component {
     constructor(props) {
@@ -156,7 +156,7 @@ export default class ContentContainer extends Component {
                 return iter + '<dt class="eventful-tooltip-key-' + classCurr + '">' + curr + '</dt><dd class="eventful-tooltip-value-' + classCurr + '">' + escapedData + '</dd>';
             },'<dl class="eventful-tooltip-content event-details">');
 
-            tooltip.innerHTML = tooltipHeadline + tooltipSubHeadline + tooltipText + '</dl>';
+            tooltip.innerHTML = tooltipHeadline + tooltipSubHeadline + tooltipText + '</dl>';// Only append to the DOM once.
 
             this.appendChild(tooltip);// Tooltip inserted into element being hovered
             this.classList.add('has-tooltip');
@@ -171,13 +171,15 @@ export default class ContentContainer extends Component {
         }
     }
 
+    /**
+     * @name gatherSelectors
+     * 
+     * @description - Walk the DOM to accumulate ids, classes, and visible DOM elements
+     * set state.pageSelectors = to that object
+     * 
+     * todo: reduce the number of invisible tags (noscript, meta, etc.) that sneak past the filter.
+     */
     gatherSelectors() {
-        /**
-         * Gathering all ids, classes, and tags used on the page.
-         * 
-         * todo: reduce the number of invisible tags (noscript, meta, etc.) that sneak past the filter.
-         */
-
         const ids = [].reduce.call(document.querySelectorAll('[id]'), function(acc, e) {
             return {type:'id', value: e.id};
         }, []);
@@ -202,7 +204,8 @@ export default class ContentContainer extends Component {
           
         while(DOMWalker.nextNode()) allElements.push(DOMWalker.currentNode);
 
-        const tagNames = [].reduce.call(allElements,function(acc,el){
+        const tagNames = [].reduce.call(allElements,
+            function(acc,el){
                 acc.push(el.tagName);
                 return acc;
             },
@@ -313,10 +316,10 @@ export default class ContentContainer extends Component {
 
         const eventMarker = this.createEventMarker(context);
         eventMarker.eventDataObject = context;
-        eventMarker.addEventListener('click', this.toggleTooltip,{capture:true});
-        //
+        eventMarker.addEventListener('click', this.toggleTooltip, { capture:true });
 
-        if(storeLibrary){ // store - currently only firebase.
+        if(getStoreLibrary){ // store - currently set-up only for firebase.
+            const storeLibrary = getStoreLibrary(this.state.database);
             const dataStore = storeLibrary.database();
             const eventsReference = dataStore.ref('events');
             eventsReference.push({
@@ -445,6 +448,8 @@ export default class ContentContainer extends Component {
             />;
 
         } else if (this.state.activeTab === "options") {
+
+            const storeLibrary = getStoreLibrary ? getStoreLibrary(this.state.database) : false;
 
             activeTabContent = <Options
             pageSelectors = { this.state.pageSelectors }
