@@ -4,7 +4,6 @@ import { selectorProcessor, hasParent, selectorObjectToString } from '../lib/dis
 import CurrentlyTracking from './CurrentlyTracking';
 
 import Select from 'react-select';
-import 'react-select/dist/react-select.css';
 
 import { SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION } from 'constants';
 

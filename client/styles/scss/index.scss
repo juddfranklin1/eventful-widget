@@ -1,0 +1,344 @@
+@import '../../../node_modules/react-select/scss/default.scss';
+
+html, body {
+    margin: 0;
+    height: 100%;
+  }
+  body {
+    height: 100%;
+    padding-top: 1px;/* fixes margin collapse issue */
+  }
+  * {
+    -webkit-box-sizing: border-box;
+       -moz-box-sizing: border-box;
+            box-sizing: border-box;
+  }
+  
+.eventful-container {
+    /* CSS Variables */
+    --key-color: #f1c;
+
+    /*Eventful Styles*/
+    width: 400px;
+    position: fixed;
+    z-index: 10000;
+    transition: all 1s;
+    -webkit-transition: all 1s;
+    top: 50px;
+
+    &,
+    & *,
+    & *:before,
+    & *:after {
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+    }
+
+    &.right {
+        right: -400px;
+        .eventful-toggle-tab {
+            left: -80px;
+            border-right: 0;
+        }
+    }
+    &.left {
+        left: -400px;
+        .eventful-toggle-tab {
+            right: -80px;
+            border-left: 0;
+        }
+    }
+    &.bottom {
+        position: fixed;
+        bottom: -300px;
+        height: 300px;
+        left: 25%;
+        width: 50%;
+
+        .eventful-toggle-tab {
+            top: -60px;
+            width: 100%;
+            height: 60px;
+            left: 0;
+            border-bottom: 0;
+        }
+    }
+    &.right.shown {
+        right: 0;
+    }
+    &.left.shown {
+        left: 0;
+    }
+    &.bottom.shown {
+        bottom: 0;
+    }
+
+    .eventful-content-wrapper {
+        background: #eee;
+        border: 1px solid var(--key-color, #b1d);
+        padding: 0;
+        clear: both;
+        &:after {
+            clear: both;
+            display: table;
+            content: "";
+        }
+    }
+    
+    .eventful-toggle-tab {
+        display: block;
+        width: 80px;
+        height: 60px;
+        padding: 10px;
+        position: absolute;
+        text-align: center;
+        background: var(--key-color, #b1d);
+        transition: background-color 1s;
+        -webkit-transition: background-color 1s;
+        border: 1px solid var(--key-color, #b1d);
+        a {
+            position: relative;
+            z-index: 100000;
+            color: white;
+            text-decoration: none;
+            transition: color 1s;
+            -webkit-transition: color 1s;
+            text-transform: capitalize;
+        }
+    }
+
+    .shown .eventful-toggle-tab {
+        background: white;
+        a {
+            color: var(--key-color, #b1d);
+        }
+    }
+  
+    .section {
+        width: 98%;
+        padding: 5px;
+        margin: 1%;
+        float: left;
+        &.hidden {
+            display: none;
+        }
+        h2 {
+            margin-top: 0;
+        }
+    }
+  
+    .eventful-navigation {
+        list-style-type: none;
+        padding: 0;
+        margin-top: 0;
+        &:after {
+            content: '';
+            clear: both;
+            display: table;
+        }
+        li {
+            float: left;
+            margin: 0 0;
+            background-color: transparent;
+            -webkit-transition: background-color 500ms linear;
+            -ms-transition: background-color 500ms linear;
+            transition: background-color 500ms linear;
+
+            a {
+                display: inline-block;
+                padding: 10px;
+                color: var(--key-color, #b1d);
+                font-weight: bold;
+                cursor: pointer;
+            }
+        }
+    }
+  
+    .tracker #tracker-link,
+    .options #options-link,
+    .add #add-link {
+        background: #fff;
+    }
+    
+    .remove-tracking {
+        font-size: 10px;
+        padding-left: 10px;
+        color: red;
+        font-weight: bold;
+        font-family: sans-serif;
+        cursor: pointer;
+    }
+    
+    button {
+        border: none;
+        background: #fff;
+        padding: 5px;
+        margin: 5px;
+        border: 1px solid #ccc;
+        &:hover {
+            border-color: #aaa;
+        }
+        
+        &[content="Test"] {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+    }
+    
+    #test-elements {
+        border: 1px solid var(--key-color, #b1d);
+        margin: 10px 0;
+        padding: 10px;
+    }
+    
+    .example-enter {
+        visibility: hidden;
+        opacity: 0;
+        transition: all 2s linear;
+    }
+    .example-enter.example-enter-active {
+        visibility: visible;
+        opacity: 1;
+        transition: all 2s linear;
+    }
+    .example-leave.example-leave-active {
+        opacity: 0;
+        transition: all 2s linear;
+    }
+
+    .currently-tracking {
+        border: 1px solid green;
+        padding: 0 1rem;
+    }
+}
+.eventful-event-marker {
+    border: 1px solid var(--key-color, #b1d);
+    border-radius: 50%;
+    width: 6px;
+    height: 6px;
+    position: absolute;
+    cursor: help;
+    background-color: transparent;
+    transition: .25s background-color;
+}
+
+.has-tooltip {
+    background-color: var(--key-color, #b1d);
+}
+
+[class^='test'] {
+    cursor: pointer;
+}
+
+.eventful-tooltip {
+    left: 3px;
+    top: 3px;
+    background: white;
+    border: 1px solid var(--key-color, #b1d);
+    padding: 0 1rem;
+    position: absolute;
+    width: 12rem;
+    word-break: break-all;
+    z-index: 19000;
+    opacity: 0;
+    transition: .5s opacity;
+}
+
+.eventful-tooltip-content {
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    flex-flow: row wrap;
+    grid-template-columns: 50% 50%;
+}
+
+
+.eventful-tooltip dt {
+    width: 50%;
+    margin: .25rem 0;
+    font-weight: bold;
+    font-size: .9rem;
+    color: var(--key-color, #b1d);
+}
+.eventful-tooltip dt:after {
+    display: inline;
+    content: ':';
+}
+.eventful-tooltip dd {
+    line-height: 26px;
+    margin-left: auto;
+    width: 50%;
+    font-size: .8rem;
+}
+
+dd.eventful-tooltip-value-targethtml {
+    line-height: 15px;
+}
+
+.eventful-close-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 20px;
+    height: 20px;
+    display: block;
+    cursor: pointer;
+}
+.eventful-close-btn:before {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 4px;
+    right: 0;
+    content: 'X';
+    font-family: sans-serif;
+    font-size: .8rem;
+    color: red;
+}
+
+.show {
+    opacity: 1;
+}
+
+.hide {
+    opacity: 0;
+}
+
+.test-1, .test-2 {
+    margin: 5rem;
+    padding: 3rem;
+    background: #eee;
+    position: relative;
+}
+.test-1:before,
+.test-2:before{
+    font-size: 2rem;
+    position: absolute;
+    top:2rem;
+    left:0;
+    right:0;
+    bottom:0;
+    text-align: center;
+    color: #05f;
+}
+.test-1:before{
+    content: 'test-1';
+}
+.test-2:before{
+    content: 'test-2';
+}
+
+video {
+    background: green;
+    height: 100px;
+    width: 300px;
+    position: relative;
+}
+input[type="checkbox"] {
+    padding: 1rem;
+    margin: 40px;
+}

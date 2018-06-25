@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import './styles/App.css';
+import './styles/scss/index.scss';
 import Eventful from './components/index.js';
 
 
