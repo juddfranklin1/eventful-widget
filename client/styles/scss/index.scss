@@ -1,4 +1,5 @@
 @import '../../../node_modules/react-select/scss/default.scss';
+@import './tooltip.scss';
 
 html, body {
     margin: 0;
@@ -232,52 +233,7 @@ html, body {
     cursor: pointer;
 }
 
-.eventful-tooltip {
-    left: 3px;
-    top: 3px;
-    background: white;
-    border: 1px solid var(--key-color, #b1d);
-    padding: 0 1rem;
-    position: absolute;
-    width: 12rem;
-    word-break: break-all;
-    z-index: 19000;
-    opacity: 0;
-    transition: .5s opacity;
-}
 
-.eventful-tooltip-content {
-    display: -webkit-box;
-    display: -moz-box;
-    display: -ms-flexbox;
-    display: -webkit-flex;
-    display: flex;
-    flex-flow: row wrap;
-    grid-template-columns: 50% 50%;
-}
-
-
-.eventful-tooltip dt {
-    width: 50%;
-    margin: .25rem 0;
-    font-weight: bold;
-    font-size: .9rem;
-    color: var(--key-color, #b1d);
-}
-.eventful-tooltip dt:after {
-    display: inline;
-    content: ':';
-}
-.eventful-tooltip dd {
-    line-height: 26px;
-    margin-left: auto;
-    width: 50%;
-    font-size: .8rem;
-}
-
-dd.eventful-tooltip-value-targethtml {
-    line-height: 15px;
-}
 
 .eventful-close-btn {
     position: absolute;
