@@ -151,6 +151,7 @@ export default class ContentContainer extends Component {
             const eventDataKeys = Object.keys(context.eventData);
 
             const tooltipText = eventDataKeys.reduce(function(iter, curr, i) {
+                console.log(context.eventData[curr]);
                 var escapedData = HTMLEscape(context.eventData[curr]);
                 var classCurr = curr.toLowerCase();
                 return iter + '<dt class="eventful-tooltip-key-' + classCurr + '">' + curr + '</dt><dd class="eventful-tooltip-value-' + classCurr + '">' + escapedData + '</dd>';
@@ -259,13 +260,14 @@ export default class ContentContainer extends Component {
      * 
      */
     createEventMarker(context, eventId) {
+        if (!this.state.markEvent) return;
         let eventMarker = document.createElement('span');
         eventMarker.classList.add('eventful-event-marker');
         
         const leftVal = context.eventData.clientX;
         const topVal = context.eventData.clientY;
         eventMarker.setAttribute('style', 'left: ' + leftVal + 'px; top: ' + topVal + 'px');
-        if(typeof eventId !== 'undefined')
+        if (typeof eventId !== 'undefined')
             eventMarker.setAttribute('data-eventid', eventId);
 
         if (context.event.altKey) {// Does different stuff if alt key is pressed.
@@ -275,6 +277,16 @@ export default class ContentContainer extends Component {
         document.body.appendChild(eventMarker);
 
         return eventMarker;
+    }
+
+    logEvent(evt, eventData, el) {
+        console.info('************ BEGIN EVENT DATA ***************');
+        console.info(evt);
+        console.info('************ SAVED EVENT DATA OBJECT ***************');
+        console.info(eventData);
+        console.info('************ TARGETED ELEMENT ***************');
+        console.info(el);
+        console.info('************ END EVENT DATA ***************');
     }
 
     /**
@@ -293,20 +305,44 @@ export default class ContentContainer extends Component {
         const now = new Date();
         const formattedTime = now.toDateString() + ' ' + now.getHours() + ':' + now.getMinutes() + ':' + now.getSeconds() + ':' + now.getMilliseconds();
 
-        // Mark the location of the event
-        const eventData = {
-            'timeStamp': now,
-            'time': formattedTime,
-            'selector': sel,
-            'event': evt.type,
-            'targetHTML': evt.target.outerHTML,
-            'bubbles': evt.bubbles,
-            'clientX': evt.clientX,
-            'clientY': evt.clientY,
-            'screenX': evt.screenX,
-            'screenY': evt.screenY,
-            'altKey': evt.altKey
-        };
+        /**
+         * Constructing the event data
+         * 
+         * This is obviously massively repetitious.
+         * It is also extremely inflexible. It doesn't gather enough unique event data for different event types
+         * There should be a dictionary in which each event is mapped to an array of props that it will look for.
+         * The structure would look like something like this:
+         * [{ 'click': {'clientX': evt.clientX,
+         *      'clientY': evt.clientY, ...}},
+         *  { 'error': {'errorCode': event.path[0].error.code,
+         *      'errorMessage': event.path[0].error.message, ...}}
+         * ]
+         * 
+         * I am pretty sure nested objects are a bad idea, but I am not 100% sure how best to avoid them in this situation.
+         * I may need to call upon lodash object functions to bail me out of problems with nested objects.
+         */
+
+        const eventData = {};
+        eventData.event = evt.type;
+        eventData.time = formattedTime;
+        eventData.selector = sel;
+        if (now) eventData.timeStamp = now;
+
+        if (evt.hasOwnProperty('target')) eventData.targetHTML = evt.target.outerHTML;
+        if (evt.hasOwnProperty('bubbles')) eventData.bubbles = evt.bubbles;
+        if (evt.hasOwnProperty('clientX')) eventData.clientX = evt.clientX;
+        if (evt.hasOwnProperty('clientY')) eventData.clientY = evt.clientY;
+        if (evt.hasOwnProperty('screenX')) eventData.screenX = evt.screenX;
+        if (evt.hasOwnProperty('screenY')) eventData.screenY = evt.screenY;
+        if (evt.hasOwnProperty('altKey')) eventData.altKey = evt.altKey;
+        if (evt.hasOwnProperty('cancelable')) eventData.cancelable = evt.cancelable;
+        if (evt.type === 'error') {
+            eventData.errorCode = evt.path[0].error.code;
+            eventData.errorMessage = evt.path[0].error.message;
+        } 
+        
+
+        if (this.state.logEvent) this.logEvent(evt, eventData, el);
 
         let context = {
             event: evt,
@@ -326,16 +362,6 @@ export default class ContentContainer extends Component {
                 event: evt.type,
                 eventData: eventData
             });
-        }
-
-        if (this.state.logEvent) {
-            console.info('************ BEGIN EVENT DATA ***************');
-            console.info(evt);
-            console.info('************ SAVED EVENT DATA OBJECT ***************');
-            console.info(eventData);
-            console.info('************ TARGETED ELEMENT ***************');
-            console.info(el);
-            console.info('************ END EVENT DATA ***************');
         }
 
         const newSelectors = this.state.selectedSelectors.map(function(val){
@@ -372,7 +398,7 @@ export default class ContentContainer extends Component {
      * 
      * @name keyboardNavigateEvents
      * 
-     * @description - if tooltips are visible, allow the left and right arrows to navigate through the tracked events, toggling tooltips as you go.
+     * @description - event handler that, if tooltips are visible, allows the left and right arrows to navigate through the tracked events, toggling tooltips as you go.
      * 
      * @param {Event} e 
      */

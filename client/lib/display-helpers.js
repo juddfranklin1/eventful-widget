@@ -1,20 +1,20 @@
 /**
  * @name HTMLEscape
  * 
- * @param {String} string 
+ * @param {String} toEscape 
  * 
  * @description - quickly escape strings that coul be interpreted as HTML
  */
-export const HTMLEscape = (string) => {
+export const HTMLEscape = (toEscape) => {
+    if (typeof toEscape !== 'string') return toEscape.toString();
     const tagsToReplace = {
         '&': '&amp;',
         '<': '&lt;',
         '>': '&gt;'
     };
     const keys = Object.keys(tagsToReplace);
-    
-    if (typeof string !== 'string') return false;
-    string = string.split('');
+ 
+    const string = toEscape.split('');
 
     return string.reduce((acc, curr) => {
             if(keys.indexOf(curr) !== -1) curr = tagsToReplace[curr];

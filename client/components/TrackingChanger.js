@@ -60,6 +60,7 @@ export default class TrackingChanger extends Component {
             'seeking',
             'seeked',
             'ended',
+            'error',
             'loadedmetadata',
             'loadeddata',
             'canplay',
@@ -129,11 +130,11 @@ export default class TrackingChanger extends Component {
               selectorInfo.type = 'element';
             }
 
-            if (selectorInfo.event === 'mouseenter' || selectorInfo.event === 'mouseleave'){
+            if (selectorInfo.value === 'video' || selectorInfo.value === 'audio' || selectorInfo.event === 'mouseenter' || selectorInfo.event === 'mouseleave'){
               const query = selectorInfo.type === 'element' ? selectorInfo.value : selectorInfo.type === 'id' ? '#' + selectorInfo.value : '.' + selectorInfo.value;
               const targets = document.querySelectorAll(query);
               [].forEach.call(targets, (el) => {
-                if(el.hasAttribute(attr)) return;
+                if (el.hasAttribute(attr)) return;
                 el.setAttribute(attr, true);
                 el.addEventListener(selectorInfo.event, function(e){
                   //not sure if there is a way to keep this from triggering if leaving an event marker, or maybe leave it as is?
@@ -141,18 +142,21 @@ export default class TrackingChanger extends Component {
                 });
               });
             }
+
             return selectorInfo;
           });
       
           // run event tracking when e.target.classList.has(selector)/e.target.tagName.toLowerCase() === selector / e.target.id === selector
           eventfulAtts.map(
             el => {
-              if(el.event === e.type){
-                if(el.type === 'id') {
+              if (el.event === e.type){
+                if (el.type === 'id') {
                   if (e.target.id === el.value) that.countEvent(e, '#' + el.value);
-                } else if(el.type === 'class'){
+                }
+                else if (el.type === 'class'){
                   if (e.target.classList.contains(el.value)) that.countEvent(e, '.' + el.value);
-                } else{
+                }
+                else {
                   if(e.target.tagName.toLowerCase() === el.value){
                     that.countEvent(e, '<' + el.value + '>');
                   } 
@@ -224,7 +228,7 @@ export default class TrackingChanger extends Component {
   };
 
   /**
-   * @name onSelectSelector
+   * @name onSelectEvent
    * 
    * @param {String} newSelector - selector to be tracked
    * @param {String} newEvent - name of event to be tracked 
@@ -304,12 +308,29 @@ export default class TrackingChanger extends Component {
     }
     else {
       // Issue #13 - https://github.com/juddfranklin1/eventful-widget/issues/13
-      const eventOptions = this.state.eventOptions[0].events.map((e,i) =>( { value: e, label: e } ));
+
+      /**
+       *  Need clean logic here for checking if this.state.chosenSelector is a specific type of element.
+       *  If so, add element-specific events to eventOptions;
+       *  If 'audio' or 'video', include media events
+       *  If 'input' include input events
+       * 
+       *  Easiest is probably a reduce call that loops through this.state.eventOptions,
+       *  constructing a collection of events on the fly.
+       * */
+      let eventOptions = this.state.eventOptions[0].events.map((e,i) => ( { value: e, label: e } ));
+      
+      if (this.state.chosenSelector === 'video' || this.state.chosenSelector === 'audio') {
+        eventOptions = this.state.eventOptions.filter(el => el.eventGroup === 'media')[0].events.map((e,i) =>  ( { value: e, label: e } ));;
+      } else if (this.state.chosenSelector === 'input'){
+        eventOptions = this.state.eventOptions.filter(el => el.eventGroup === 'input')[0].events.map((e,i) =>  ( { value: e, label: e } ));;
+      }
+      
       return (
         <div className='choose-event add-tracking-wrapper'>
           <label htmlFor="chooseEvent">
             <h4>Pick an event to track.</h4>
-          
+
             <Select
               name = "chooseEvent"
               value = { this.state.selectValue }

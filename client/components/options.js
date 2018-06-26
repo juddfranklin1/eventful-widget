@@ -19,7 +19,7 @@ export default class Options extends Component {
         { tag: 'input', class: 'test-input', type: 'checkbox', content: 'click', id: '' },
         { tag: 'button', class: 'test-content', content: 'test button', id: '' },
         { tag: 'textarea', class: 'test-textarea', content: '', id: '' },
-        { tag: 'video', class: 'test-video', content: '', id: '' },
+        { tag: 'video', class: 'test-video', content: '', id: '', attributes: [{key: 'controls'}, {key: 'src', val: 'https://youtu.be/1IJPQIYcAxQ'}] },
         { tag: 'audio', class: 'test-audio', content: '', id: '' }
       ],
       isTesting: true,
@@ -58,6 +58,7 @@ export default class Options extends Component {
                   elementClass= { el.class }
                   elementContent= { el.content }
                   elementType={ el.type }
+                  elementAttributes={ el.attributes }
                 />
               );  
             }) }

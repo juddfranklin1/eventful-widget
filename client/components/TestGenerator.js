@@ -13,9 +13,12 @@ const TestGenerator = function(props){
         let selector = sel || '';
 
         let TestElement = document.createElement(props.elementTag);
-        TestElement.id = props.elementId;
-        TestElement.className = props.elementClass;
-        
+        if(props.elementId && props.elementId !== '')
+            TestElement.id = props.elementId;
+        if(props.elementClass && props.elementClass !== '')
+            TestElement.className = props.elementClass;
+        if(typeof props.elementAttributes !== 'undefined' && props.elementAttributes.length > 0)
+            props.elementAttributes.forEach(el => TestElement.setAttribute(el.key, el.val || true));
         if(props.elementTag === 'input'){
             const elementType = props.elementType || 'text';
             TestElement.setAttribute('type', elementType);
