@@ -130,17 +130,20 @@ export default class TrackingChanger extends Component {
               selectorInfo.type = 'element';
             }
 
-            if (selectorInfo.value === 'video' || selectorInfo.value === 'audio' || selectorInfo.event === 'mouseenter' || selectorInfo.event === 'mouseleave'){
+            // manage events that don't propagate by placing eventful attributes directly on the elements, rather than on the body tag.
+            if (selectorInfo.value === 'input' || selectorInfo.value === 'video' || selectorInfo.value === 'audio' || selectorInfo.event === 'mouseenter' || selectorInfo.event === 'mouseleave') {
               const query = selectorInfo.type === 'element' ? selectorInfo.value : selectorInfo.type === 'id' ? '#' + selectorInfo.value : '.' + selectorInfo.value;
               const targets = document.querySelectorAll(query);
-              [].forEach.call(targets, (el) => {
-                if (el.hasAttribute(attr)) return;
-                el.setAttribute(attr, true);
-                el.addEventListener(selectorInfo.event, function(e){
-                  //not sure if there is a way to keep this from triggering if leaving an event marker, or maybe leave it as is?
-                  that.countEvent(e, query);
-                });
-              });
+              [].forEach.call(targets,
+                (el) => {
+                  if (el.hasAttribute(attr)) return;// No need to reapply
+                  el.setAttribute(attr, true);
+                  el.addEventListener(selectorInfo.event, function(e) {
+                    //not sure if there is a way to keep this from triggering if leaving an event marker, or maybe leave it as is?
+                    that.countEvent(e, query);
+                  });
+                }
+              );
             }
 
             return selectorInfo;
@@ -221,6 +224,7 @@ export default class TrackingChanger extends Component {
     selector = selector.replace(/[<>]/g,'');//clear out tag opening and closing symbols.
     
     if(!!document.querySelector('[data-eventful-tracking-' + event.type + selectorProcessor(selector) + ']')){// don't track if there's no attribute requiring it. 
+      console.log("It's happening!");
       let description = 'Last tracked event: '+ event.type + ' on ' + selector + '.';
       that.props.updateCounter(description, event, event.target, selector);
     }

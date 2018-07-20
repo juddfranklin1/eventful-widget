@@ -53,8 +53,17 @@ export default class Eventful extends Component {
     return (
 
       <div className= {this.state.hidden ? "eventful-container hidden " + this.state.alignment : "eventful-container shown " + this.state.alignment }>
-        <WidgetToggle onToggle={ this.onToggle.bind(this,this.state.hidden) } hidden={ this.state.hidden } />
-        <ContentContainer className={ this.state.activeTab } />
+        <WidgetToggle
+          onToggle={
+            this.onToggle.bind(this,this.state.hidden)
+          }
+          hidden={
+            this.state.hidden
+          }
+        />
+        <ContentContainer
+          className={ this.state.activeTab }
+        />
       </div>
     
     )

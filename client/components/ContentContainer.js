@@ -329,9 +329,10 @@ export default class ContentContainer extends Component {
         if (now) eventData.timeStamp = now;
 
         if (evt.hasOwnProperty('target')) eventData.targetHTML = evt.target.outerHTML;
-        if (evt.hasOwnProperty('bubbles')) eventData.bubbles = evt.bubbles;
-        if (evt.hasOwnProperty('clientX')) eventData.clientX = evt.clientX;
-        if (evt.hasOwnProperty('clientY')) eventData.clientY = evt.clientY;
+        if (typeof evt.bubbles !== 'undefined') eventData.bubbles = evt.bubbles;
+        console.log(evt);
+        eventData.clientX = evt.clientX;
+        eventData.clientY = evt.clientY;
         if (evt.hasOwnProperty('screenX')) eventData.screenX = evt.screenX;
         if (evt.hasOwnProperty('screenY')) eventData.screenY = evt.screenY;
         if (evt.hasOwnProperty('altKey')) eventData.altKey = evt.altKey;
@@ -413,7 +414,7 @@ export default class ContentContainer extends Component {
 
             if(typeof curr !== 'undefined'){
                 if (e.keyCode === 37){
-                    if(!!prevSib &&   !!prevSib.classList && prevSib.classList.contains('eventful-event-marker')){
+                    if(!!prevSib && !!prevSib.classList && prevSib.classList.contains('eventful-event-marker')) {
                         [].forEach.call(currentlyTooltipped, (el) => {
                             el.classList.remove('has-tooltip');
                             const tooltip = el.getElementsByClassName('eventful-tooltip')[0];
@@ -422,7 +423,7 @@ export default class ContentContainer extends Component {
                         prevSib.click();
                     }
                 } else if (e.keyCode === 39){
-                    if(!!nextSib && !!nextSib.classList && nextSib.classList.contains('eventful-event-marker')){
+                    if(!!nextSib && !!nextSib.classList && nextSib.classList.contains('eventful-event-marker')) {
                         [].forEach.call(currentlyTooltipped, (el) => {
                             el.classList.remove('has-tooltip');
                             const tooltip = el.getElementsByClassName('eventful-tooltip')[0];
@@ -451,7 +452,7 @@ export default class ContentContainer extends Component {
         return;
     }
 
-    changeSelectedSelectors(newSelectors){
+    changeSelectedSelectors(newSelectors) {
         this.setState({
             selectedSelectors: newSelectors
         });
@@ -464,13 +465,13 @@ export default class ContentContainer extends Component {
         if (this.state.activeTab === "add") {
 
             activeTabContent = <TrackingChanger
-            pageSelectors = { this.state.pageSelectors }
-            pageIds = { this.state.pageIds }
-            pageTagNames = { this.state.pageTagNames }
-            selectedSelectors = { this.state.selectedSelectors }
-            changeSelectedSelectors = { this.changeSelectedSelectors.bind(this) }
-            updateCounter = { this.updateCounter.bind(this) }
-            logEvent = { this.state.logEvent }
+                pageSelectors = { this.state.pageSelectors }
+                pageIds = { this.state.pageIds }
+                pageTagNames = { this.state.pageTagNames }
+                selectedSelectors = { this.state.selectedSelectors }
+                changeSelectedSelectors = { this.changeSelectedSelectors.bind(this) }
+                updateCounter = { this.updateCounter.bind(this) }
+                logEvent = { this.state.logEvent }
             />;
 
         } else if (this.state.activeTab === "options") {
@@ -478,19 +479,19 @@ export default class ContentContainer extends Component {
             const storeLibrary = getStoreLibrary ? getStoreLibrary(this.state.database) : false;
 
             activeTabContent = <Options
-            pageSelectors = { this.state.pageSelectors }
-            selectedSelectors = { this.state.selectedSelectors }
-            setLogEvent = { this.setLogEvent.bind(this) }
-            clearEvents = { this.clearEvents.bind(this, storeLibrary) }
-            logEvent = { this.state.logEvent }
+                pageSelectors = { this.state.pageSelectors }
+                selectedSelectors = { this.state.selectedSelectors }
+                setLogEvent = { this.setLogEvent.bind(this) }
+                clearEvents = { this.clearEvents.bind(this, storeLibrary) }
+                logEvent = { this.state.logEvent }
             />;
 
         } else {
 
             activeTabContent = <Tracker
-            latestUpdate = { this.state.latestUpdate }
-            selectedSelectors = { this.state.selectedSelectors }
-            logEvent = { this.state.logEvent }
+                latestUpdate = { this.state.latestUpdate }
+                selectedSelectors = { this.state.selectedSelectors }
+                logEvent = { this.state.logEvent }
             />;
 
         }
@@ -498,7 +499,10 @@ export default class ContentContainer extends Component {
         return (
             <div className = "eventful-content-wrapper" >
 
-                <Navbar changeTab = { this.changeTab.bind(this) } activeTab = { this.state.activeTab } />
+                <Navbar
+                    changeTab = { this.changeTab.bind(this) }
+                    activeTab = { this.state.activeTab }
+                />
 
                 { activeTabContent }
 
