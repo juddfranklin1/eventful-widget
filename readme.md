@@ -35,7 +35,7 @@ To try this out locally, `webpack start` bundles the scripts and then drops them
 The ability to generate simple elements on the page is built into the widget. In terms of events to track, I am starting with the most obvious events like click, mouseenter, mouseleave, etc. Eventually, I would like to provide the ability to track events specific to different elements. So a user can generate an audio tag, which will populate with a simple audio file so that a user can test out tracking of audio events. Similarly, a video tag can be generated for video events. input, textarea, form, table, and other elements that have unique event APIs will be given unique lists of events to track.
 
 ## Additional notes on events
-[notes on window events](./docs/events-notes.md)
+[notes on window events](./docs/window-events-notes.md)
 ...
 
 ### Current Features
