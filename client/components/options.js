@@ -1,9 +1,6 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
 
 import { Cookies } from 'react-cookie';
-
-import { CSSTransitionGroup } from 'react-transition-group' // ES6
 
 import TestGenerator from './TestGenerator.js';
 
@@ -12,6 +9,14 @@ export default class Options extends Component {
     super();
 
     this.state = {
+      /**
+       * Test Elements
+       * System for generating elements:
+       * Give the user the ability to create different sorts of elements.
+       * Give them the option to set classnames, ids, attributes, etc.
+       * Also, generate data attributes that allows us to hide these elements from 
+       * 
+       */
       elements: [
         { tag: 'div', class: 'test-div test-1', content: '', id: '' },
         { tag: 'div', class: 'test-div test-2', content: '', id: '' },
@@ -23,10 +28,39 @@ export default class Options extends Component {
         { tag: 'audio', class: 'test-audio', content: '', id: '' }
       ],
       isTesting: true,
-      logEvent: props.logEvent || true
+      logEvent: props.logEvent || true,
+      trackWindowEvents: props.trackWindowEvents || false
 
     }
 
+  }
+
+  toggleTrackWindowEvents() {
+    var htmlEl = document.getElementsByTagName('html')[0];
+    if(!this.state.trackWindowEvents) {
+      htmlEl.setAttribute('data-eventful_track_window_events','true');
+      
+      window.basicTrack = function(e) {
+        if (htmlEl.hasAttribute('data-eventful_track_window_events')) {
+          return function(e) {
+            console.log(e);
+          }
+        }
+      }
+      window.addEventListener('resize', window.basicTrack());
+      window.addEventListener('hashchange', window.basicTrack());
+      window.addEventListener("beforeunload", function (e) {
+        if (htmlEl.hasAttribute('data-eventful_track_window_events')) {
+          var confirmationMessage = "\\o/";
+          console.log(e);
+          (e || window.event).returnValue = confirmationMessage;     //Gecko + IE
+          return confirmationMessage;                                //Webkit, Safari, Chrome etc.
+        }
+      });
+    } else {
+      htmlEl.removeAttribute('data-eventful_track_window_events');
+    }
+    this.setState({ "trackWindowEvents": !this.state.trackWindowEvents });
   }
 
   toggleTesting() {
@@ -72,9 +106,12 @@ export default class Options extends Component {
         <h2>Options</h2>
         
         { TestElements(this.state.isTesting, this.onAddElement) }
-        
-        <p><button id="clearEventsButton" onClick={ () => this.props.clearEvents() }>Clear Existing Events</button></p>
-        <label htmlFor="logEventCheckbox">Log Events to console? <input id="logEventCheckbox" type="checkbox" onClick={ ()=> { this.toggleLogEvent(); if(this.state.logEvent && 'checked="checked"'){}; }} /></label>
+
+        <ul>
+          <li><button id="clearEventsButton" onClick={ () => this.props.clearEvents() }>Clear Existing Events</button></li>
+          <li><label htmlFor="logEventCheckbox">Log Events to console? <input id="logEventCheckbox" type="checkbox" onClick={ ()=> { this.toggleLogEvent(); if(this.state.logEvent && 'checked="checked"'){}; }} /></label></li>
+          <li><label htmlFor="trackWindowEventsCheckbox">Track window events? <input id="trackWindowEventsCheckbox" type="checkbox" onClick={ ()=> { this.toggleTrackWindowEvents(); if(this.state.trackWindowEvents && 'checked="checked"'){}; }} /></label></li>
+        </ul>
       </div>
     );
   }

@@ -36,6 +36,10 @@ html, body {
         box-sizing: border-box;
     }
 
+    ul {
+        list-style-type: none;
+    }
+
     &.right {
         right: -400px;
         .eventful-toggle-tab {
@@ -178,7 +182,7 @@ html, body {
         margin: 5px;
         border: 1px solid #ccc;
         &:hover {
-            border-color: #aaa;
+            border-color: var(--key-color);
         }
         
         &[content="Test"] {
@@ -297,4 +301,10 @@ video {
 input[type="checkbox"] {
     padding: 1rem;
     margin: 40px;
+    @at-root {// Extracts the selector for repurposing! Neat! I wish I knew this before!
+        #eventful-root & {
+            padding: .2rem;
+            margin: .5rem;
+        }
+    }
 }

@@ -10,7 +10,9 @@
 
 Data can be stored in Firebase if desired. More options for data storage is a future priority.
 
-## A little widget that is intended to track events on a page.
+## Overview
+
+__A little widget that is intended to track events on a page.__
 
 The Browser is ultra-powerful and it's the hidden engine of so many of our applications. However, the events triggered on a page are mysterious things. Have you ever wondered how frequently mouseenter and mouseleave events are triggered? Did you know that you can target mouseevents that occur when the alt key is held down? Perhaps you would like to know more about the data available in the mousewheel or contextmenu events. The eventful widget is designed to expose data that will give you a window into browser events.
 
@@ -32,6 +34,10 @@ To try this out locally, `webpack start` bundles the scripts and then drops them
 
 The ability to generate simple elements on the page is built into the widget. In terms of events to track, I am starting with the most obvious events like click, mouseenter, mouseleave, etc. Eventually, I would like to provide the ability to track events specific to different elements. So a user can generate an audio tag, which will populate with a simple audio file so that a user can test out tracking of audio events. Similarly, a video tag can be generated for video events. input, textarea, form, table, and other elements that have unique event APIs will be given unique lists of events to track.
 
+## Additional notes on events
+[notes on window events](./docs/events-notes.md)
+...
+
 ### Current Features
 - Events are stored automatically to a firebase account.
 - On the Options view, a button is available to clear out the events from the firebase account.
@@ -47,14 +53,24 @@ The ability to generate simple elements on the page is built into the widget. In
 ## To Do
 - __npm build__ in case a user simply wants to export a production-compressed version of the widget script.
 - Flesh out testing (currently uses Cypress.io).
-- Use SASS or PostCSS. Currently uses clunky vanilla CSS.
+- reskin to allow for more comprehensive data treatment.
+- Find an effective format for displaying data
+  - learning about the unique data associated with each event will help with organizing the data into useful and non-useful points.
+  - Data delivered with each event can also optionally display a little writeup about each event and what it can be used for.
 
-- Enabling persistent tracking.
+- Include current url in the stored event data (this would be very useful for much of the persistence functionality described below).
 
-- Extend data layer to facilitate S3, localstorage, or no storage.
+- Enable persistent event tracking.
+  - Currently, data used in tooltips can be stored, but more robust and ongoing tracking of events is not enabled by the data that is stored.
+
+- Extend data layer to facilitate S3, localstorage, declare your own, or no storage.
 - Improve stored data to include more info on previously interacted-with elements, so that they can be recreated when possible.
 
+- Create dynamic tracking data, such as animating the path of events so that it can be seen how the browser handled bubbling and propagation. This could be done by giving a border or background to each element in the event's path with a delay between each to make it playable.
+
 - Improve UX for adding testing elements.
+  - Testing elements should be added in a more flexible, more abstracted way so that a user can more easily test different sorts of elements.
+  - Perhaps buttons would be reserved for creating collections of elements, such as forms, tables, lists, or pre-populated video, audio, or other tags.
 
 - Improve ability to sort and explore event data within the widget
   - all events tracked on a specific selector
@@ -69,12 +85,6 @@ The ability to generate simple elements on the page is built into the widget. In
 - Ability to track events not necessarily associated with an element, such as keyboard events.
 - Ability to track load events and other non-user-triggered events (requires persistence of tracking).
 
-- Improve event data:
-  - element data
-  - event-specific data such as the key pressed in a keydown or keyup event.
-  - timestamp
-  - geolocation
-
-- Styling to gracefully integrate with a given site.
+- Improved ability to unobtrusively integrate with a given site.
 
 #### I know. Lots to do. Please enjoy, suggest, fork, or star stay tuned for updates!

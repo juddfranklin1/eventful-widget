@@ -330,7 +330,6 @@ export default class ContentContainer extends Component {
 
         if (evt.hasOwnProperty('target')) eventData.targetHTML = evt.target.outerHTML;
         if (typeof evt.bubbles !== 'undefined') eventData.bubbles = evt.bubbles;
-        console.log(evt);
         eventData.clientX = evt.clientX;
         eventData.clientY = evt.clientY;
         if (evt.hasOwnProperty('screenX')) eventData.screenX = evt.screenX;

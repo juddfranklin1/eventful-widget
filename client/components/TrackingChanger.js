@@ -86,6 +86,46 @@ export default class TrackingChanger extends Component {
             'load',
             'loadend'
           ]
+        },
+        {
+          eventGroup: 'window',
+          events: [
+            'afterprint',
+            'beforeprint',
+            'beforeunload',
+            'hashchange',
+            'languagechange', 
+            'message',
+            'messageerror',
+            'offline',
+            'online',
+            'pagehide',
+            'pageshow',
+            'popstate',
+            'storage',
+            'unhandledrejection', 
+            'unload',
+            'appinstalled',
+            'beforeinstallprompt',
+            'devicelight',
+            'devicemotion',
+            'deviceorientation',
+            'deviceorientationabsolute',  // Chrome only
+            'deviceproximity',
+            'gamepadconnected',
+            'gamepaddisconnected',
+            'mozbeforepaint',
+            'paint',
+            'rejectionhandled',
+            'userproximity',
+            'vrdisplayconnect',
+            'vrdisplaydisconnect',
+            'vrdisplayactivate',
+            'vrdisplaydeactivate',
+            'vrdisplayblur',
+            'vrdisplayfocus',
+            'vrdisplaypresentchange',
+          ]
         }
         // etc...
       ],
@@ -223,8 +263,7 @@ export default class TrackingChanger extends Component {
 
     selector = selector.replace(/[<>]/g,'');//clear out tag opening and closing symbols.
     
-    if(!!document.querySelector('[data-eventful-tracking-' + event.type + selectorProcessor(selector) + ']')){// don't track if there's no attribute requiring it. 
-      console.log("It's happening!");
+    if(!!document.querySelector('[data-eventful-tracking-' + event.type + selectorProcessor(selector) + ']')){// don't track if there's no attribute requiring it.
       let description = 'Last tracked event: '+ event.type + ' on ' + selector + '.';
       that.props.updateCounter(description, event, event.target, selector);
     }
