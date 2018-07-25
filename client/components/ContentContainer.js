@@ -30,10 +30,10 @@
 import React, { Component } from 'react';
 import { HTMLEscape, wrap, unique, rm } from '../lib/display-helpers.js';
 
-import Options from './Options.js';
-import Tracker from './Tracker.js';
-import TrackingChanger from './TrackingChanger.js';
-import Navbar from './Navbar.js';
+import Options from './Options';
+import Tracker from './Tracker';
+import TrackingChanger from './TrackingChanger';
+import Navbar from './Navbar';
 import { configure, getStoreLibrary } from '../lib/database-helpers';
 
 export default class ContentContainer extends Component {
@@ -452,7 +452,6 @@ export default class ContentContainer extends Component {
     }
 
     setMarkEvent(doMark) {
-        console.log(doMark);
         this.setState({
             markEvent: doMark,
         });

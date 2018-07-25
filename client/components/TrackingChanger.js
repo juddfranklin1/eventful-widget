@@ -135,6 +135,8 @@ export default class TrackingChanger extends Component {
   body = document.getElementsByTagName('body')[0];
 
   componentDidMount(){
+    if (this.props.selectedSelectors.length > 0) return;
+    
     const that = this;
     that.state.eventOptions.map(function(el){
       const scope = that;
@@ -179,7 +181,6 @@ export default class TrackingChanger extends Component {
                   if (el.hasAttribute(attr)) return;// No need to reapply
                   el.setAttribute(attr, true);
                   el.addEventListener(selectorInfo.event, function(e) {
-                    //not sure if there is a way to keep this from triggering if leaving an event marker, or maybe leave it as is?
                     that.countEvent(e, query);
                   });
                 }
@@ -260,7 +261,7 @@ export default class TrackingChanger extends Component {
    */
   countEvent(event, selector) {
     const that = this;
-
+    console.log(event);
     selector = selector.replace(/[<>]/g,'');//clear out tag opening and closing symbols.
     
     if(!!document.querySelector('[data-eventful-tracking-' + event.type + selectorProcessor(selector) + ']')){// don't track if there's no attribute requiring it.
