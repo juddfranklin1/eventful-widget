@@ -259,22 +259,22 @@ export default class ContentContainer extends Component {
      * This function should take an x and y coord, as well as the event data.
      * 
      */
-    createEventMarker(context, eventId) {
-        if (!this.state.markEvent) return;
+    createEventMarker(context, markEvent, eventId) {
         let eventMarker = document.createElement('span');
         eventMarker.classList.add('eventful-event-marker');
         
-        const leftVal = context.eventData.clientX;
-        const topVal = context.eventData.clientY;
-        eventMarker.setAttribute('style', 'left: ' + leftVal + 'px; top: ' + topVal + 'px');
-        if (typeof eventId !== 'undefined')
-            eventMarker.setAttribute('data-eventid', eventId);
-
-        if (context.event.altKey) {// Does different stuff if alt key is pressed.
-            eventMarker.style.backgroundColor = 'blue';
+        if(markEvent){
+            const leftVal = context.eventData.clientX;
+            const topVal = context.eventData.clientY;
+            eventMarker.setAttribute('style', 'left: ' + leftVal + 'px; top: ' + topVal + 'px');
+            if (typeof eventId !== 'undefined')
+                eventMarker.setAttribute('data-eventid', eventId);
+    
+            if (context.event.altKey) {// Does different stuff if alt key is pressed.
+                eventMarker.style.backgroundColor = 'blue';
+            }
+            document.body.appendChild(eventMarker);
         }
-
-        document.body.appendChild(eventMarker);
 
         return eventMarker;
     }
@@ -349,8 +349,8 @@ export default class ContentContainer extends Component {
             eventData: eventData,
             eventId: 'new-event'
         };
-
-        const eventMarker = this.createEventMarker(context);
+        
+        const eventMarker = this.createEventMarker(context, this.state.markEvent);
         eventMarker.eventDataObject = context;
         eventMarker.addEventListener('click', this.toggleTooltip, { capture:true });
 
@@ -451,6 +451,14 @@ export default class ContentContainer extends Component {
         return;
     }
 
+    setMarkEvent(doMark) {
+        console.log(doMark);
+        this.setState({
+            markEvent: doMark,
+        });
+        return;
+    }
+
     changeSelectedSelectors(newSelectors) {
         this.setState({
             selectedSelectors: newSelectors
@@ -481,8 +489,10 @@ export default class ContentContainer extends Component {
                 pageSelectors = { this.state.pageSelectors }
                 selectedSelectors = { this.state.selectedSelectors }
                 setLogEvent = { this.setLogEvent.bind(this) }
+                setMarkEvent = { this.setMarkEvent.bind(this) }
                 clearEvents = { this.clearEvents.bind(this, storeLibrary) }
                 logEvent = { this.state.logEvent }
+                markEvent = { this.state.markEvent }
             />;
 
         } else {
@@ -491,6 +501,7 @@ export default class ContentContainer extends Component {
                 latestUpdate = { this.state.latestUpdate }
                 selectedSelectors = { this.state.selectedSelectors }
                 logEvent = { this.state.logEvent }
+                markEvent = { this.state.markEvent }
             />;
 
         }

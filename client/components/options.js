@@ -28,7 +28,6 @@ export default class Options extends Component {
         { tag: 'audio', class: 'test-audio', content: '', id: '' }
       ],
       isTesting: true,
-      logEvent: props.logEvent || true,
       trackWindowEvents: props.trackWindowEvents || false
 
     }
@@ -64,15 +63,17 @@ export default class Options extends Component {
   }
 
   toggleTesting() {
-  
     this.setState({ "isTesting": !this.state.isTesting });
-  
   }
 
-  toggleLogEvent(){
+  toggleMarkEvent(bool) {
+    this.props.setMarkEvent(bool);
+    return bool;
+  }
 
-    this.setState({ "logEvent": !this.state.logEvent });
-    this.props.setLogEvent(this.state.logEvent);
+  toggleLogEvent(bool){
+    this.props.setLogEvent(bool);
+    return bool;
   }
 
   render(){
@@ -101,6 +102,7 @@ export default class Options extends Component {
       }
       return <div />;
     }
+
     return(
       <div className='options-wrapper section' >
         <h2>Options</h2>
@@ -109,8 +111,9 @@ export default class Options extends Component {
 
         <ul>
           <li><button id="clearEventsButton" onClick={ () => this.props.clearEvents() }>Clear Existing Events</button></li>
-          <li><label htmlFor="logEventCheckbox">Log Events to console? <input id="logEventCheckbox" type="checkbox" onClick={ ()=> { this.toggleLogEvent(); if(this.state.logEvent && 'checked="checked"'){}; }} /></label></li>
-          <li><label htmlFor="trackWindowEventsCheckbox">Track window events? <input id="trackWindowEventsCheckbox" type="checkbox" onClick={ ()=> { this.toggleTrackWindowEvents(); if(this.state.trackWindowEvents && 'checked="checked"'){}; }} /></label></li>
+          <li><label htmlFor="trackWindowEventsCheckbox">Track window events? <input id="trackWindowEventsCheckbox" type="checkbox" onChange={ ()=> { this.toggleTrackWindowEvents(); if(this.state.trackWindowEvents && 'checked="checked"'){}; }} /></label></li>
+          <li><label htmlFor="logEventCheckbox">Log Events to console? <input id="logEventCheckbox" type="checkbox" defaultChecked={ this.props.logEvent } onChange={ ()=> { this.toggleLogEvent(!this.props.logEvent); }} /></label></li>
+          <li><label htmlFor="markEventCheckbox">Mark events where they occur? <input id="markEventCheckbox" type="checkbox" defaultChecked={ this.props.markEvent } onChange={ ()=> { this.toggleMarkEvent(!this.props.markEvent); }} /></label></li>
         </ul>
       </div>
     );
