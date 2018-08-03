@@ -136,7 +136,7 @@ export default class TrackingChanger extends Component {
 
   componentDidMount(){
     if (this.props.selectedSelectors.length > 0) return;
-    
+
     const that = this;
     that.state.eventOptions.map(function(el){
       const scope = that;
@@ -191,20 +191,20 @@ export default class TrackingChanger extends Component {
           });
       
           // run event tracking when e.target.classList.has(selector)/e.target.tagName.toLowerCase() === selector / e.target.id === selector
-          eventfulAtts.map(
+          eventfulAtts.map (
             el => {
-              if (el.event === e.type){
-                if (el.type === 'id') {
-                  if (e.target.id === el.value) that.countEvent(e, '#' + el.value);
+              if (el.event === e.type) {
+                let constructedSelector = false;
+                if (el.type === 'id' && e.target.id === el.value) {
+                  constructedSelector = '#' + el.value;
                 }
-                else if (el.type === 'class'){
-                  if (e.target.classList.contains(el.value)) that.countEvent(e, '.' + el.value);
+                else if (el.type === 'class' && e.target.classList.contains(el.value)) {
+                  constructedSelector = '.' + el.value;
                 }
-                else {
-                  if(e.target.tagName.toLowerCase() === el.value){
-                    that.countEvent(e, '<' + el.value + '>');
-                  } 
+                else if (e.target.tagName.toLowerCase() === el.value) {
+                  constructedSelector = '<' + el.value + '>'
                 }
+                if (constructedSelector) that.countEvent(e, constructedSelector);
               }
             }
           );
