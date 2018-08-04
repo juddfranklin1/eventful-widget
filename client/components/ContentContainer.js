@@ -30,6 +30,8 @@
 import React, { Component } from 'react';
 import { HTMLEscape, wrap, unique, rm } from '../lib/display-helpers.js';
 
+import { Cookies } from 'react-cookie';
+
 import Options from './Options';
 import Tracker from './Tracker';
 import TrackingChanger from './TrackingChanger';
@@ -41,6 +43,7 @@ export default class ContentContainer extends Component {
         super();
 
         this.state = {
+            CookieObj: new Cookies(),
             element: '',
             pageSelectors: [],
             activeTab: 'tracker',
@@ -49,6 +52,7 @@ export default class ContentContainer extends Component {
             clonedChildren: [],
             logEvent: false,
             markEvent: true,
+            trackWindowEvents: true,
             database: 'FIREBASE'
         }
 
@@ -232,6 +236,8 @@ export default class ContentContainer extends Component {
 
         this.gatherSelectors();// Doing this before eventful loads avoids the problem of tracking eventful elements.
 
+        this.windowEventTracker(this.state.CookieObj.get("eventful_track_window_events"));
+
         const database = configure(this.state.database);
 
         this.getEvents(that, database);
@@ -300,6 +306,37 @@ export default class ContentContainer extends Component {
      * 
      * Currently also creates event marker. That should be a separate function.
      */
+
+    windowEventTracker(doTrack) {
+        if(doTrack === 'true' || this.state.trackWindowEvents) {
+            var htmlEl = document.getElementsByTagName('html')[0];
+            htmlEl.setAttribute('data-eventful_track_window_events','true');
+            this.state.CookieObj.set('eventful_track_window_events', 'true');
+
+            window.basicTrack = function(e) {
+                if (htmlEl.hasAttribute('data-eventful_track_window_events')) {
+                    return function(e) {
+                        console.log(e);
+                    }
+                }
+            }
+
+            window.addEventListener('resize', window.basicTrack());
+            window.addEventListener('hashchange', window.basicTrack());
+            window.addEventListener("beforeunload", function (e) {
+                if (htmlEl.hasAttribute('data-eventful_track_window_events')) {
+                    var confirmationMessage = "\\o/";
+                    console.log(e);
+                    (e || window.event).returnValue = confirmationMessage;     //Gecko + IE
+                    return confirmationMessage;                                //Webkit, Safari, Chrome etc.
+                }
+            });
+        } else {
+            htmlEl.removeAttribute('data-eventful_track_window_events');
+            this.state.CookieObj.set('eventful_track_window_events', 'false');
+        }
+    }
+
     updateCounter(text, evt, el, sel) {
         
         const now = new Date();
@@ -444,6 +481,13 @@ export default class ContentContainer extends Component {
         return;
     }
 
+    setTrackWindowEvents(doTrack) {
+        this.state.CookieObj.set('eventful_track_window_events', doTrack ? 'true' : 'false');
+        this.setState({
+            trackWindowEvents: doTrack
+        })
+    }
+
     setLogEvent(doLog) {
         this.setState({
             logEvent: doLog,
@@ -487,9 +531,11 @@ export default class ContentContainer extends Component {
             activeTabContent = <Options
                 pageSelectors = { this.state.pageSelectors }
                 selectedSelectors = { this.state.selectedSelectors }
+                setTrackWindowEvents = { this.setTrackWindowEvents.bind(this) }
                 setLogEvent = { this.setLogEvent.bind(this) }
                 setMarkEvent = { this.setMarkEvent.bind(this) }
                 clearEvents = { this.clearEvents.bind(this, storeLibrary) }
+                trackWindowEvents = { this.state.trackWindowEvents }
                 logEvent = { this.state.logEvent }
                 markEvent = { this.state.markEvent }
             />;
@@ -499,8 +545,10 @@ export default class ContentContainer extends Component {
             activeTabContent = <Tracker
                 latestUpdate = { this.state.latestUpdate }
                 selectedSelectors = { this.state.selectedSelectors }
+                setTrackWindowEvents = { this.state.setTrackWindowEvents }
                 logEvent = { this.state.logEvent }
                 markEvent = { this.state.markEvent }
+                trackWindowEvents = { this.state.trackWindowEvents }
             />;
 
         }

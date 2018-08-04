@@ -2,9 +2,7 @@
  * Global component
  */
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
 
-import { instanceOf } from 'prop-types';
 import { Cookies } from 'react-cookie';
 
 import WidgetToggle from './WidgetToggle';

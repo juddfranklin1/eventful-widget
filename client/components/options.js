@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 
-import { Cookies } from 'react-cookie';
-
 import TestGenerator from './TestGenerator.js';
 
 export default class Options extends Component {
@@ -17,49 +15,27 @@ export default class Options extends Component {
        * Also, generate data attributes that allows us to hide these elements from 
        * 
        */
+
       elements: [
-        { tag: 'div', class: 'test-div test-1', content: '', id: '' },
-        { tag: 'div', class: 'test-div test-2', content: '', id: '' },
-        { tag: 'input', class: 'test-input', type: 'text', content: 'click', id: '' },
-        { tag: 'input', class: 'test-input', type: 'checkbox', content: 'click', id: '' },
-        { tag: 'button', class: 'test-content', content: 'test button', id: '' },
-        { tag: 'textarea', class: 'test-textarea', content: '', id: '' },
-        { tag: 'video', class: 'test-video', content: '', id: '', attributes: [{key: 'controls'}, {key: 'src', val: 'https://youtu.be/1IJPQIYcAxQ'}] },
-        { tag: 'audio', class: 'test-audio', content: '', id: '' }
+        { tag: 'div', class: 'eventful-test-div test-1', content: '', id: '' },
+        { tag: 'div', class: 'eventful-test-div test-2', content: '', id: '' },
+        { tag: 'input', class: 'eventful-test-input', type: 'text', content: 'click', id: '' },
+        { tag: 'input', class: 'eventful-test-input', type: 'checkbox', content: 'click', id: '' },
+        { tag: 'button', class: 'eventful-test-content', content: 'test button', id: '' },
+        { tag: 'textarea', class: 'eventful-test-textarea', content: '', id: '' },
+        { tag: 'video', class: 'eventful-test-video', content: '', id: '', attributes: [{key: 'controls'}, {key: 'src', val: 'https://youtu.be/1IJPQIYcAxQ'}] },
+        { tag: 'audio', class: 'eventful-test-audio', content: '', id: '' },
+        { tag: 'a', class: 'eventful-test-link', content: 'test link', id: '', attributes: [{key: 'href', val: 'juddfranklin.com'}, {key: 'target', val: '_self'}] },
       ],
       isTesting: true,
-      trackWindowEvents: props.trackWindowEvents || false
 
     }
 
   }
 
-  toggleTrackWindowEvents() {
-    var htmlEl = document.getElementsByTagName('html')[0];
-    if(!this.state.trackWindowEvents) {
-      htmlEl.setAttribute('data-eventful_track_window_events','true');
-      
-      window.basicTrack = function(e) {
-        if (htmlEl.hasAttribute('data-eventful_track_window_events')) {
-          return function(e) {
-            console.log(e);
-          }
-        }
-      }
-      window.addEventListener('resize', window.basicTrack());
-      window.addEventListener('hashchange', window.basicTrack());
-      window.addEventListener("beforeunload", function (e) {
-        if (htmlEl.hasAttribute('data-eventful_track_window_events')) {
-          var confirmationMessage = "\\o/";
-          console.log(e);
-          (e || window.event).returnValue = confirmationMessage;     //Gecko + IE
-          return confirmationMessage;                                //Webkit, Safari, Chrome etc.
-        }
-      });
-    } else {
-      htmlEl.removeAttribute('data-eventful_track_window_events');
-    }
-    this.setState({ "trackWindowEvents": !this.state.trackWindowEvents });
+  toggleTrackWindowEvents(bool) {
+    this.props.setTrackWindowEvents(bool);
+    return bool;
   }
 
   toggleTesting() {
@@ -111,7 +87,7 @@ export default class Options extends Component {
 
         <ul>
           <li><button id="clearEventsButton" onClick={ () => this.props.clearEvents() }>Clear Existing Events</button></li>
-          <li><label htmlFor="trackWindowEventsCheckbox">Track window events? <input id="trackWindowEventsCheckbox" type="checkbox" onChange={ ()=> { this.toggleTrackWindowEvents(); if(this.state.trackWindowEvents && 'checked="checked"'){}; }} /></label></li>
+          <li><label htmlFor="trackWindowEventsCheckbox">Track window events? <input id="trackWindowEventsCheckbox" type="checkbox" defaultChecked={ this.props.trackWindowEvents } onChange={ ()=> { this.toggleTrackWindowEvents(!this.props.trackWindowEvents); }} /></label></li>
           <li><label htmlFor="logEventCheckbox">Log Events to console? <input id="logEventCheckbox" type="checkbox" defaultChecked={ this.props.logEvent } onChange={ ()=> { this.toggleLogEvent(!this.props.logEvent); }} /></label></li>
           <li><label htmlFor="markEventCheckbox">Mark events where they occur? <input id="markEventCheckbox" type="checkbox" defaultChecked={ this.props.markEvent } onChange={ ()=> { this.toggleMarkEvent(!this.props.markEvent); }} /></label></li>
         </ul>

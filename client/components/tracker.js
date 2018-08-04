@@ -17,4 +17,5 @@ const Tracker = function(props) {
       </div>
     );
 }
+
 export default Tracker
