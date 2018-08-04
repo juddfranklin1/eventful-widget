@@ -41,9 +41,9 @@ import { configure, getStoreLibrary } from '../lib/database-helpers';
 export default class ContentContainer extends Component {
     constructor(props) {
         super();
-
+        const CookieObj = new Cookies();
         this.state = {
-            CookieObj: new Cookies(),
+            CookieObj: CookieObj,
             element: '',
             pageSelectors: [],
             activeTab: 'tracker',
@@ -52,7 +52,7 @@ export default class ContentContainer extends Component {
             clonedChildren: [],
             logEvent: false,
             markEvent: true,
-            trackWindowEvents: true,
+            trackWindowEvents: CookieObj.get('eventful_track_window_events'),
             database: 'FIREBASE'
         }
 
@@ -236,7 +236,7 @@ export default class ContentContainer extends Component {
 
         this.gatherSelectors();// Doing this before eventful loads avoids the problem of tracking eventful elements.
 
-        this.windowEventTracker(this.state.CookieObj.get("eventful_track_window_events"));
+        this.windowEventTracker(this.state.CookieObj.get('eventful_track_window_events'));
 
         const database = configure(this.state.database);
 
@@ -308,10 +308,9 @@ export default class ContentContainer extends Component {
      */
 
     windowEventTracker(doTrack) {
-        if(doTrack === 'true' || this.state.trackWindowEvents) {
-            var htmlEl = document.getElementsByTagName('html')[0];
+        var htmlEl = document.getElementsByTagName('html')[0];
+        if(doTrack === 'true' || this.state.trackWindowEvents === 'true') {
             htmlEl.setAttribute('data-eventful_track_window_events','true');
-            this.state.CookieObj.set('eventful_track_window_events', 'true');
 
             window.basicTrack = function(e) {
                 if (htmlEl.hasAttribute('data-eventful_track_window_events')) {
@@ -332,8 +331,9 @@ export default class ContentContainer extends Component {
                 }
             });
         } else {
-            htmlEl.removeAttribute('data-eventful_track_window_events');
-            this.state.CookieObj.set('eventful_track_window_events', 'false');
+            if (htmlEl.hasAttribute('data-eventful_track_window_events')) {
+                htmlEl.removeAttribute('data-eventful_track_window_events');
+            }
         }
     }
 
