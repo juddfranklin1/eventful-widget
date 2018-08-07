@@ -52,7 +52,7 @@ export default class ContentContainer extends Component {
             clonedChildren: [],
             logEvent: false,
             markEvent: true,
-            trackWindowEvents: CookieObj.get('eventful_track_window_events'),
+            trackWindowEvents: CookieObj.get('eventful_track_window_events') === 'true' ? true : false,
             database: 'FIREBASE'
         }
 
@@ -296,6 +296,45 @@ export default class ContentContainer extends Component {
     }
 
     /**
+     * Setting up the event tracker for some window events
+     * 
+     * @name windowEventTracker
+     * 
+     * @param {String} doTrack 
+     */
+
+    windowEventTracker(doTrack) {
+        var htmlEl = document.getElementsByTagName('html')[0];
+        if(doTrack === 'true') {
+            htmlEl.setAttribute('data-eventful_track_window_events','true');
+
+            window.addEventListener('resize', this.windowTrack(htmlEl));
+            window.addEventListener('hashchange', this.windowTrack(htmlEl));
+            window.addEventListener('beforeunload', function (e) {
+                if (htmlEl.hasAttribute('data-eventful_track_window_events')) {
+                    var confirmationMessage = "\\o/";
+                    console.log(e);
+                    (e || window.event).returnValue = confirmationMessage;     //Gecko + IE
+                    return confirmationMessage;                                //Webkit, Safari, Chrome etc.
+                }
+            });
+
+        } else {
+            if (htmlEl.hasAttribute('data-eventful_track_window_events')) {
+                htmlEl.removeAttribute('data-eventful_track_window_events');
+            }
+        }
+    }
+
+    windowTrack(htmlEl) {
+        return function(e) {
+            if (htmlEl.hasAttribute('data-eventful_track_window_events')) {
+                console.log(e);
+            }
+        }
+    }
+
+    /**
      * @name updateCounter
      * 
      * @param {String} text - message linked to event
@@ -306,36 +345,6 @@ export default class ContentContainer extends Component {
      * 
      * Currently also creates event marker. That should be a separate function.
      */
-
-    windowEventTracker(doTrack) {
-        var htmlEl = document.getElementsByTagName('html')[0];
-        if(doTrack === 'true' || this.state.trackWindowEvents === 'true') {
-            htmlEl.setAttribute('data-eventful_track_window_events','true');
-
-            window.basicTrack = function(e) {
-                if (htmlEl.hasAttribute('data-eventful_track_window_events')) {
-                    return function(e) {
-                        console.log(e);
-                    }
-                }
-            }
-
-            window.addEventListener('resize', window.basicTrack());
-            window.addEventListener('hashchange', window.basicTrack());
-            window.addEventListener("beforeunload", function (e) {
-                if (htmlEl.hasAttribute('data-eventful_track_window_events')) {
-                    var confirmationMessage = "\\o/";
-                    console.log(e);
-                    (e || window.event).returnValue = confirmationMessage;     //Gecko + IE
-                    return confirmationMessage;                                //Webkit, Safari, Chrome etc.
-                }
-            });
-        } else {
-            if (htmlEl.hasAttribute('data-eventful_track_window_events')) {
-                htmlEl.removeAttribute('data-eventful_track_window_events');
-            }
-        }
-    }
 
     updateCounter(text, evt, el, sel) {
         
@@ -482,7 +491,11 @@ export default class ContentContainer extends Component {
     }
 
     setTrackWindowEvents(doTrack) {
+
+        this.windowEventTracker(doTrack.toString());
+
         this.state.CookieObj.set('eventful_track_window_events', doTrack ? 'true' : 'false');
+
         this.setState({
             trackWindowEvents: doTrack
         })
